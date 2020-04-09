@@ -19,11 +19,9 @@ class DB:
 
 		self.connection.commit()
 
-	def execute_query(self, problem, date_today, Day, Month, Year, problem_str):
+	def execute_query(self, problem, date_today, Date_end, problem_str):
 	
-		Date_end = datetime.date(Year, Month, Day)
-		
-		status = 'Not_perfomed'
+		status = 'Не выполнено'
 		self.cur.execute('''INSERT INTO TODO(Задача, Статус, Дата_добавления, Дата_окончания) VALUES (?,?,?, ?)''',
                        (problem, status, date_today, Date_end))
 		self.connection.commit()
@@ -38,8 +36,19 @@ class DB:
 		self.result_date_end = self.cur.fetchall()
 		self.cur.execute("SELECT Дата_добавления FROM TODO ORDER BY № DESC LIMIT 1;")
 		self.result_date_now = self.cur.fetchall()
+		self.result_status = str(self.result_status[0][0])
+		self.result_problem = str(self.result_problem[0][0])
+		self.result_date_end = str(self.result_date_end[0][0])
+		self.result_date_now = str(self.result_date_now[0][0])
+		self.date_end_numeral = [int(x) for x in self.result_date_end.split("-")]
+		day_end = int(self.date_end_numeral[2])
+		month_end =int(self.date_end_numeral[1])
+		year_end = int(self.date_end_numeral[0])
+		self.date_end_less = datetime.date(year_end, month_end, day_end)
+
+		print(self.date_end_numeral)
 		problem_str.delete(0,'end')
-		main_win.print_problem(self.result_number, self.result_status, self.result_problem, self.result_date_now, self.result_date_end)
+		main_win.print_problem_add_task(self.result_number, self.result_status, self.result_problem, self.result_date_now, self.result_date_end)
 
 ####################Графическая оболочка###########################
 
@@ -56,20 +65,11 @@ class Main_win: #основное окно
 
 		self.make_button(toolbar)
 
-	def print_problem(self, result_number, result_status, result_problem, result_date_now, result_date_end):
-		Label(self.root, text=result_number, font = "Times 16").place(x = 50 , y = 150  )
-		Label(self.root, text=result_problem, font = "Times 16").place(x = 90 , y = 150 )
-
-		print(result_status)
-		print(result_date_now)
-		print(type(result_number))
-		print(result_number)
+	def print_problem_add_task(self, result_number, result_status, result_problem, result_date_now, result_date_end):
 		number = int(result_number[0][0])
-		print(number)
-		print(type(number))
-		Label(self.root, text=result_status, font = "Times 16").place(x = 150 , y = 150 )
-		Label(self.root, text=result_date_now, font = "Times 16").place(x = 340 , y = 150 )
-		Label(self.root, text=result_date_end, font = "Times 16").place(x = 450 , y = 150 )
+		Label(self.root, text=result_number, font = "Times 16").place(x = 50 , y = 150  + (number - 1) * 50  )
+		status_problem = result_problem + '    ' + result_status + '   ' + result_date_now + '   ' + result_date_end
+		Label(self.root, text=status_problem, font = "Times 16").place(x = 90 , y = 150 + (number - 1) * 50)
 
 	def make_button(self, perent):
 		btn_open_add = tk.Button(perent,
@@ -150,7 +150,7 @@ class Add: #дочернее окно
 								text = "Add",
 								width = 5,
 								height = 1,
-								command = lambda:db.execute_query(self.problem.get(),self.date_today,self.Day.get(),self.Month.get(),self.Year.get(),self.problem),
+								command = lambda:db.execute_query(self.problem.get(),self.date_today,self.Date_end,self.problem),
 								bg = "Green",
 								bd=3)
 
@@ -170,19 +170,28 @@ class Add: #дочернее окно
 		self.Month = tk.IntVar()
 		self.Year = tk.IntVar()
 
-		self.Day_spin = Spinbox(self.root2, width=3, from_ = 1, to = 31, textvariable=self.Day)
+		self.Day.set(self.date_today.day)
+		self.Month.set(self.date_today.month)
+		self.Year.set(self.date_today.year)
+
+		self.Day_spin = Spinbox(self.root2, width=3, from_ = 1, to = 31, textvariable=self.Day, command = self.date_less_today)
 		self.Day_spin.place(x = 45, y = 65)
 		Label(self.root2, text = 'День').place(x = 10, y = 65)
 
-		self.Month_spin = Spinbox(self.root2, width = 3, from_=1, to=12, textvariable=self.Month)
+		self.Month_spin = Spinbox(self.root2, width = 3, from_=1, to=12, textvariable=self.Month, command = self.date_less_today)
 		self.Month_spin.place(x = 135, y = 65)
 		Label(self.root2, text = 'Месяц').place(x = 85, y = 65)
 
-		self.Year_spin = Spinbox(self.root2, width = 5,from_= 2020, to=9999, textvariable=self.Year)
+		self.Year_spin = Spinbox(self.root2, width = 5,from_= 2020, to=9999, textvariable=self.Year, command = self.date_less_today)
 		self.Year_spin.place(x = 195, y = 65)
 		Label(self.root2, text = 'Год').place(x = 170, y = 65)
 
-		btn_add_problem = tk.Button(self.root2,
+
+		self.Date_end = datetime.date(self.Year.get(), self.Month.get(), self.Day.get())
+
+
+
+		btn_add_destroy = tk.Button(self.root2,
 								text = "Close",
 								width = 5,
 								height = 1,
@@ -190,7 +199,7 @@ class Add: #дочернее окно
 								bg = "Green",
 								bd=3)
 
-		btn_add_problem.place (x = 190, y = 100)
+		btn_add_destroy.place (x = 190, y = 100)
 
 
 		self.focuse()
@@ -199,6 +208,26 @@ class Add: #дочернее окно
 		self.root2.grab_set()
 		self.root2.focus_set()
 		self.root2.wait_window()
+
+	def date_less_today(self):
+		self.Year_t = int(self.Year.get())
+		self.Month_t = int(self.Month.get())
+		self.Day_t = int(self.Day.get())
+
+		self.change_spin()
+
+	def change_spin(self):
+		if(self.Year_t < self.date_today.year or self.Year_t == self.date_today.year):
+			if(self.Month_t <  self.date_today.month or self.Month_t == self.date_today.month):
+				if(self.Day_t < self.date_today.day):
+					self.Day_spin.config(from_ = self.date_today.day)
+				self.Month_spin.config(from_= self.date_today.month)
+			self.Year_spin.config(from_ = self.date_today.year)
+
+		if(self.Year_t > self.date_today.year):
+			self.Month_spin.config(from_= 1)
+			self.Day_spin.config(from_ = 1)
+
 
 
 if __name__ == "__main__":
