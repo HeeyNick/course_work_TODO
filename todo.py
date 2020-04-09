@@ -20,7 +20,7 @@ class DB:
 		self.connection.commit()
 
 	def execute_query(self, problem, date_today, Date_end, problem_str):
-	
+
 		status = 'Не выполнено'
 		self.cur.execute('''INSERT INTO TODO(Задача, Статус, Дата_добавления, Дата_окончания) VALUES (?,?,?, ?)''',
                        (problem, status, date_today, Date_end))
@@ -46,7 +46,7 @@ class DB:
 		year_end = int(self.date_end_numeral[0])
 		self.date_end_less = datetime.date(year_end, month_end, day_end)
 
-		print(self.date_end_numeral)
+		print(self.date_end_less)
 		problem_str.delete(0,'end')
 		main_win.print_problem_add_task(self.result_number, self.result_status, self.result_problem, self.result_date_now, self.result_date_end)
 
@@ -187,10 +187,6 @@ class Add: #дочернее окно
 		Label(self.root2, text = 'Год').place(x = 170, y = 65)
 
 
-		self.Date_end = datetime.date(self.Year.get(), self.Month.get(), self.Day.get())
-
-
-
 		btn_add_destroy = tk.Button(self.root2,
 								text = "Close",
 								width = 5,
@@ -230,6 +226,11 @@ class Add: #дочернее окно
 		if(self.Year_t > self.date_today.year):
 			self.Month_spin.config(from_= 1)
 			self.Day_spin.config(from_ = 1)
+
+		self.input_Date_end()
+
+	def input_Date_end(self):
+		self.Date_end = datetime.date(self.Year.get(), self.Month.get(), self.Day.get())
 
 
 
