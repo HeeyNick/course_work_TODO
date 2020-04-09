@@ -1,7 +1,9 @@
-import tkinter as tk
 from tkinter import *
+import tkinter as tk
+from tkinter import ttk
 import sqlite3 as lite
 import datetime
+
 
 class DB:
 	def __init__(self):
@@ -67,6 +69,26 @@ class Main_win: #основное окно
 		toolbar = tk.Frame(bg = 'Grey', width = 900, height = 100)
 		toolbar.place ( x =0, y = 0)
 
+		self.tree = ttk.Treeview(self.root, columns = ('ID','important','task','state','date_start','date_end'),
+									   height = 100,
+									   show = 'headings')
+
+		self.tree.column('ID', width = 30 , anchor = tk.CENTER)
+		self.tree.column('important', width = 30 , anchor = tk.CENTER)
+		self.tree.column('task', width = 510 , anchor = tk.CENTER)
+		self.tree.column('state', width = 130 , anchor = tk.CENTER)
+		self.tree.column('date_start', width = 100 , anchor = tk.CENTER)
+		self.tree.column('date_end', width = 100 , anchor = tk.CENTER)
+
+		self.tree.heading('ID', text = 'ID')
+		self.tree.heading('important', text = 'Приоритет')
+		self.tree.heading('task', text = 'Задание')
+		self.tree.heading('state', text = 'Состояние')
+		self.tree.heading('date_start', text = 'Дата Начала')
+		self.tree.heading('date_end', text = 'Срок сдачи')
+
+		self.tree.place(x=0,y=100)
+
 		self.make_button(toolbar)
 
 	def print_problem_add_task(self, result_number, result_status, result_problem, result_date_now, result_date_end):
@@ -76,62 +98,73 @@ class Main_win: #основное окно
 		Label(self.root, text=status_problem, font = "Times 16").place(x = 90 , y = 150 + (number - 1) * 50)
 
 	def make_button(self, perent):
+
+
+		self.add=PhotoImage(file='3.png')
+		self.change=PhotoImage(file='6.png')
+		self.important=PhotoImage(file='4.png')
+		self.delete=PhotoImage(file='2.png')
+		self.performed=PhotoImage(file='1.png')
+		self.delete_performed=PhotoImage(file='5.png')
+		
+
 		btn_open_add = tk.Button(perent,
 								text = "Add Task",
-								width = 14,
-								height = 10,
-								command = lambda:self.make_add(),
-								bg = "Green",
-								bd=3)
+								width = 100,
+								height = 100,
+								image= self.add,
+								bd=3,
+								command = lambda:self.make_add())
 		
 		btn_change = tk.Button(perent,
 								text = "Change",
-								width = 14,
-								height = 10,
-								command = lambda:self.make_add(),
-								bg = "Green",
+								width = 100,
+								height = 100,
+								image= self.change,
+								#command = lambda:self.make_add(),
+								
 								bd=3)
 
 		btn_important = tk.Button(perent,
 								text = "important",
-								width = 14,
-								height = 10,
-								command = lambda:self.make_add(),
-								bg = "Green",
+								width = 100,
+								height = 100,
+								image = self.important,
+								#command = lambda:self.make_add(),
 								bd=3)
 
 		btn_delete = tk.Button(perent,
 								text = "delete",
-								width = 14,
-								height = 10,
-								command = lambda:self.make_add(),
-								bg = "Green",
+								width = 100,
+								height = 100,
+								image = self.delete,
+								#command = lambda:self.make_add(),
 								bd=3)
 		btn_make_performed = tk.Button(perent,
 								text = "perfomed",
-								width = 14,
-								height = 10,
-								command = lambda:self.make_add(),
-								bg = "Green",
+								width = 100,
+								height = 100,
+								image = self.performed,
+								#command = lambda:self.make_add(),
 								bd=3)
 
 		btn_delete_performed = tk.Button(perent,
 								text = "del perfomed",
-								width = 14,
-								height = 10,
-								command = lambda:self.make_add(),
-								bg = "Green",
+								width = 100,
+								height = 100,
+								image = self.delete_performed,
+								#command = lambda:self.make_add(),
 								bd=3)
 
 
 
 
-		btn_open_add.place 			(x = 0,   y = 0)
+		btn_open_add.place 			(x = 5,   y = 0)
 		btn_change.place   			(x = 115, y = 0) 
-		btn_delete.place			(x = 230, y = 0)	
-		btn_important.place 		(x = 345, y = 0)
-		btn_make_performed.place 	(x = 460, y = 0)
-		btn_delete_performed.place 	(x = 575, y = 0)
+		btn_delete.place			(x = 225, y = 0)	
+		btn_important.place 		(x = 335, y = 0)
+		btn_make_performed.place 	(x = 445, y = 0)
+		btn_delete_performed.place 	(x = 555, y = 0)
 
 
 	def run(self):
@@ -149,14 +182,19 @@ class Add: #дочернее окно
 		self.root2.title('Add Task')
 		self.root2.geometry("350x130")
 		self.root2.resizable(False, False)
+		self.make_window(self.root2)
 
+
+
+
+	def make_window(self, root2):
 		btn_add_problem = tk.Button(self.root2,
-								text = "Add",
-								width = 5,
-								height = 1,
-								command = lambda:db.execute_query(self.problem.get(),self.date_today,self.Date_end,self.problem),
-								bg = "Green",
-								bd=3)
+									text = "Add",
+									width = 5,
+									height = 1,
+									command = lambda:db.execute_query(self.problem.get(),self.date_today,self.Date_end,self.problem),
+									bg = "Green",
+									bd=3)
 
 		btn_add_problem.place (x = 100, y = 100)
 
@@ -204,9 +242,8 @@ class Add: #дочернее окно
 								bd=3)
 
 		btn_add_destroy.place (x = 190, y = 100)
-
-
 		self.focuse()
+
 
 	def focuse(self):
 		self.root2.grab_set()
