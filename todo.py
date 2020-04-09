@@ -50,8 +50,12 @@ class DB:
 		problem_str.delete(0,'end')
 		main_win.print_problem_add_task(self.result_number, self.result_status, self.result_problem, self.result_date_now, self.result_date_end)
 
-####################Графическая оболочка###########################
 
+
+
+###################################################################
+####################Графическая оболочка###########################
+###################################################################
 
 class Main_win: #основное окно
 	def __init__(self):
@@ -68,7 +72,7 @@ class Main_win: #основное окно
 	def print_problem_add_task(self, result_number, result_status, result_problem, result_date_now, result_date_end):
 		number = int(result_number[0][0])
 		Label(self.root, text=result_number, font = "Times 16").place(x = 50 , y = 150  + (number - 1) * 50  )
-		status_problem = result_problem + '    ' + result_status + '   ' + result_date_now + '   ' + result_date_end
+		status_problem = result_problem + '    ' + result_status + '   ' + result_date_now + '   ' + result_date_end #
 		Label(self.root, text=status_problem, font = "Times 16").place(x = 90 , y = 150 + (number - 1) * 50)
 
 	def make_button(self, perent):
