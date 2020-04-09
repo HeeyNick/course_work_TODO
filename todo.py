@@ -4,57 +4,6 @@ from tkinter import ttk
 import sqlite3 as lite
 import datetime
 
-
-class DB:
-	def __init__(self):
-		self.connection = lite.connect("to_do_list.db")
-		self.cur = self.connection.cursor()
-		self.cur.execute("""
-			CREATE TABLE IF NOT EXISTS TODO (
-  			№ INTEGER PRIMARY KEY AUTOINCREMENT,
-  			Задача TEXT NOT NULL,
- 			Статус TEXT ,
- 			Дата_добавления DATE,
- 			Дата_окончания DATE
-			)
-			""")
-
-		self.connection.commit()
-
-	def execute_query(self, problem, date_today, Date_end, problem_str):
-	
-		status = 'Не выполнено'
-		self.cur.execute('''INSERT INTO TODO(Задача, Статус, Дата_добавления, Дата_окончания) VALUES (?,?,?, ?)''',
-                       (problem, status, date_today, Date_end))
-		self.connection.commit()
-
-		self.cur.execute("SELECT № FROM TODO ORDER BY № DESC LIMIT 1;")
-		self.result_number = self.cur.fetchall()
-		self.cur.execute("SELECT Задача FROM TODO ORDER BY № DESC LIMIT 1;")
-		self.result_problem = self.cur.fetchall()
-		self.cur.execute("SELECT Статус FROM TODO ORDER BY № DESC LIMIT 1;")
-		self.result_status = self.cur.fetchall()
-		self.cur.execute("SELECT Дата_окончания FROM TODO ORDER BY № DESC LIMIT 1;")
-		self.result_date_end = self.cur.fetchall()
-		self.cur.execute("SELECT Дата_добавления FROM TODO ORDER BY № DESC LIMIT 1;")
-		self.result_date_now = self.cur.fetchall()
-		self.result_status = str(self.result_status[0][0])
-		self.result_problem = str(self.result_problem[0][0])
-		self.result_date_end = str(self.result_date_end[0][0])
-		self.result_date_now = str(self.result_date_now[0][0])
-		self.date_end_numeral = [int(x) for x in self.result_date_end.split("-")]
-		day_end = int(self.date_end_numeral[2])
-		month_end =int(self.date_end_numeral[1])
-		year_end = int(self.date_end_numeral[0])
-		self.date_end_less = datetime.date(year_end, month_end, day_end)
-
-		print(self.date_end_numeral)
-		problem_str.delete(0,'end')
-		main_win.print_problem_add_task(self.result_number, self.result_status, self.result_problem, self.result_date_now, self.result_date_end)
-
-
-
-
 ###################################################################
 ####################Графическая оболочка###########################
 ###################################################################
@@ -69,13 +18,15 @@ class Main_win: #основное окно
 		toolbar = tk.Frame(bg = 'Grey', width = 900, height = 100)
 		toolbar.place ( x =0, y = 0)
 
+
+
 		self.tree = ttk.Treeview(self.root, columns = ('ID','important','task','state','date_start','date_end'),
 									   height = 100,
 									   show = 'headings')
 
 		self.tree.column('ID', width = 30 , anchor = tk.CENTER)
-		self.tree.column('important', width = 30 , anchor = tk.CENTER)
-		self.tree.column('task', width = 510 , anchor = tk.CENTER)
+		self.tree.column('important', width = 60 , anchor = tk.CENTER)
+		self.tree.column('task', width = 490 , anchor = tk.CENTER)
 		self.tree.column('state', width = 130 , anchor = tk.CENTER)
 		self.tree.column('date_start', width = 100 , anchor = tk.CENTER)
 		self.tree.column('date_end', width = 100 , anchor = tk.CENTER)
@@ -91,11 +42,9 @@ class Main_win: #основное окно
 
 		self.make_button(toolbar)
 
-	def print_problem_add_task(self, result_number, result_status, result_problem, result_date_now, result_date_end):
-		number = int(result_number[0][0])
-		Label(self.root, text=result_number, font = "Times 16").place(x = 50 , y = 150  + (number - 1) * 50  )
-		status_problem = result_problem + '    ' + result_status + '   ' + result_date_now + '   ' + result_date_end #
-		Label(self.root, text=status_problem, font = "Times 16").place(x = 90 , y = 150 + (number - 1) * 50)
+		self.db = db
+		self.view_records()
+	
 
 	def make_button(self, perent):
 
@@ -170,6 +119,24 @@ class Main_win: #основное окно
 	def run(self):
 		self.root.mainloop()
 
+	def records(self,problem,date_today, date_end,problem_str):
+		 self.db.execute_query(problem,date_today, date_end,problem_str)
+		 self.view_records()
+
+	def view_records(self):
+		self.db.cur.execute('''SELECT * FROM TODO''')
+		[self.tree.delete(i) for i in self.tree.get_children()]
+		[self.tree.insert('', 'end', values = row) for row in self.db.cur.fetchall()]
+
+
+
+
+	'''def print_problem_add_task(self, result_number, result_status, result_problem, result_date_now, result_date_end):
+		number = int(result_number[0][0])
+		Label(self.root, text=result_number, font = "Times 16").place(x = 50 , y = 150  + (number - 1) * 50  )
+		status_problem = result_problem + '    ' + result_status + '   ' + result_date_now + '   ' + result_date_end #
+		Label(self.root, text=status_problem, font = "Times 16").place(x = 90 , y = 150 + (number - 1) * 50)'''
+
 
 ########Тест чтобы вызвать дочернее окно , потом назначить на кнопку##
 
@@ -182,7 +149,10 @@ class Add: #дочернее окно
 		self.root2.title('Add Task')
 		self.root2.geometry("350x130")
 		self.root2.resizable(False, False)
+
+		self.view = main_win
 		self.make_window(self.root2)
+		
 
 
 
@@ -192,7 +162,10 @@ class Add: #дочернее окно
 									text = "Add",
 									width = 5,
 									height = 1,
-									command = lambda:db.execute_query(self.problem.get(),self.date_today,self.Date_end,self.problem),
+									command = lambda:self.view.records(self.problem.get(),
+																	   self.date_today,
+																	   self.Date_end,
+																	   self.problem),
 									bg = "Green",
 									bd=3)
 
@@ -216,15 +189,33 @@ class Add: #дочернее окно
 		self.Month.set(self.date_today.month)
 		self.Year.set(self.date_today.year)
 
-		self.Day_spin = Spinbox(self.root2, width=3, from_ = 1, to = 31, textvariable=self.Day, command = self.date_less_today)
+		self.Day_spin = Spinbox(self.root2,
+								width=3,
+								from_ = 1, to = 31, 
+								textvariable=self.Day, 
+								command = self.date_less_today)
+
 		self.Day_spin.place(x = 45, y = 65)
+
 		Label(self.root2, text = 'День').place(x = 10, y = 65)
 
-		self.Month_spin = Spinbox(self.root2, width = 3, from_=1, to=12, textvariable=self.Month, command = self.date_less_today)
+		self.Month_spin = Spinbox(self.root2, 
+								  width = 3, 
+								  from_=1, 
+								  to=12, 
+								  textvariable=self.Month, 
+								  command = self.date_less_today)
+
 		self.Month_spin.place(x = 135, y = 65)
+
 		Label(self.root2, text = 'Месяц').place(x = 85, y = 65)
 
-		self.Year_spin = Spinbox(self.root2, width = 5,from_= 2020, to=9999, textvariable=self.Year, command = self.date_less_today)
+		self.Year_spin = Spinbox(self.root2,
+								 width = 5,
+								 from_= 2020, 
+								 to=9999, 
+								 textvariable=self.Year, 
+								 command = self.date_less_today)
 		self.Year_spin.place(x = 195, y = 65)
 		Label(self.root2, text = 'Год').place(x = 170, y = 65)
 
@@ -272,12 +263,60 @@ class Add: #дочернее окно
 			self.Month_spin.config(from_= 1)
 			self.Day_spin.config(from_ = 1)
 
+class DB:
+	def __init__(self):
+		self.connection = lite.connect("to_do_list.db")
+		self.cur = self.connection.cursor()
+		self.cur.execute("""
+			CREATE TABLE IF NOT EXISTS TODO (
+  			№ INTEGER PRIMARY KEY AUTOINCREMENT,
+  			Приоритет TEXT, 
+  			Задача TEXT NOT NULL,
+ 			Статус TEXT ,
+ 			Дата_добавления DATE,
+ 			Дата_окончания DATE
+			)
+			""")
 
+		self.connection.commit()
+
+	def execute_query(self, problem, date_today, Date_end, problem_str):
+
+		priority = 'Нет'
+	
+		status = 'Не выполнено'
+		self.cur.execute('''INSERT INTO TODO(Приоритет,Задача, Статус, Дата_добавления, Дата_окончания) VALUES (?,?,?,?, ?)''',
+                       (priority,problem, status, date_today, Date_end))
+		self.connection.commit()
+
+		'''self.cur.execute("SELECT № FROM TODO ORDER BY № DESC LIMIT 1;")
+		self.result_number = self.cur.fetchall()
+		self.cur.execute("SELECT Задача FROM TODO ORDER BY № DESC LIMIT 1;")
+		self.result_problem = self.cur.fetchall()
+		self.cur.execute("SELECT Статус FROM TODO ORDER BY № DESC LIMIT 1;")
+		self.result_status = self.cur.fetchall()
+		self.cur.execute("SELECT Дата_окончания FROM TODO ORDER BY № DESC LIMIT 1;")
+		self.result_date_end = self.cur.fetchall()
+		self.cur.execute("SELECT Дата_добавления FROM TODO ORDER BY № DESC LIMIT 1;")
+		self.result_date_now = self.cur.fetchall()
+		self.result_status = str(self.result_status[0][0])
+		self.result_problem = str(self.result_problem[0][0])
+		self.result_date_end = str(self.result_date_end[0][0])
+		self.result_date_now = str(self.result_date_now[0][0])
+		self.date_end_numeral = [int(x) for x in self.result_date_end.split("-")]
+		day_end = int(self.date_end_numeral[2])
+		month_end =int(self.date_end_numeral[1])
+		year_end = int(self.date_end_numeral[0])
+		self.date_end_less = datetime.date(year_end, month_end, day_end)
+
+		print(self.date_end_numeral)
+		problem_str.delete(0,'end')
+		main_win.print_problem_add_task(self.result_number, self.result_status, self.result_problem, self.result_date_now, self.result_date_end)'''
 
 if __name__ == "__main__":
+
 	db = DB()
 	main_win = Main_win()
-	#main_win.make_add()
 	main_win.run()
 	
 
