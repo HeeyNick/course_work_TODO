@@ -224,6 +224,9 @@ class Add: #дочернее окно
 				self.Month_spin.config(from_= self.date_today.month)
 			self.Year_spin.config(from_ = self.date_today.year)
 
+		if(self.Year_t == self.date_today.year and self.Month_t > self.date_today.month):
+			self.Day_spin.config(from_ = 1)
+
 		if(self.Year_t > self.date_today.year):
 			self.Month_spin.config(from_= 1)
 			self.Day_spin.config(from_ = 1)
