@@ -190,8 +190,10 @@ class Add: #дочернее окно
 
 	def make_window(self, root2):
 
-		self.problem = Entry(self.root2, width = 40)
+		self.problem_entry = tk.StringVar()
+		self.problem_entry.trace(mode="w", callback=self.validate)
 
+		self.problem = Entry(self.root2, width = 40)
 		self.problem.place(x = 75, y = 5)
 
 		btn_add_problem = tk.Button(self.root2,
@@ -304,8 +306,7 @@ class Add: #дочернее окно
 		self.Date_end = datetime.date(self.Year.get(), self.Month.get(), self.Day.get())
 
 	def validate(self, *args):
-		if(self.problem_entry.get() != ''):
-			self.problem.config(bg = 'white')
+		self.problem.config(bg = 'white')
 
 class Change: 
 	def __init__(self, perent):
