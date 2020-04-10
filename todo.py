@@ -119,17 +119,21 @@ class Main_win: #основное окно
 	def run(self):
 		self.root.mainloop()
 
-	def records(self,problem,date_today, date_end,problem_str):
-		 self.db.execute_query(problem,date_today, date_end,problem_str)
-		 self.view_records()
-		 problem_str.delete(0,'end')
+	def records(self,problem,date_today, date_end, problem_str):
+		if(problem != ''):
+			self.db.execute_query(problem,date_today, date_end)
+		else:
+			self.Entry_Error(problem_str)
+		self.view_records()
+		problem_str.delete(0, 'end')
 
 	def view_records(self):
 		self.db.cur.execute('''SELECT * FROM TODO''')
 		[self.tree.delete(i) for i in self.tree.get_children()]
 		[self.tree.insert('', 'end', values = row) for row in self.db.cur.fetchall()]
 
-
+	def Entry_Error(self, problem_str):
+		problem_str.config(bg = 'pink')
 
 
 	'''def print_problem_add_task(self, result_number, result_status, result_problem, result_date_now, result_date_end):
@@ -172,8 +176,10 @@ class Add: #дочернее окно
 
 		btn_add_problem.place (x = 100, y = 100)
 
+		self.problem_entry = tk.StringVar()
+		self.problem_entry.trace(mode="w", callback=self.validate)
 
-		self.problem = Entry(self.root2, width = 40)
+		self.problem = Entry(self.root2, width = 40, textvariable = self.problem_entry)
 		self.problem.place(x = 75, y = 5)
 		
 		Label(self.root2, text = 'Задача').place(x = 10, y = 5)
@@ -272,6 +278,9 @@ class Add: #дочернее окно
 	def input_Date_end(self):
 		self.Date_end = datetime.date(self.Year.get(), self.Month.get(), self.Day.get())
 
+	def validate(self, *args):
+		self.problem.config(bg = 'white')
+
 class DB:
 	def __init__(self):
 		self.connection = lite.connect("to_do_list.db")
@@ -289,7 +298,7 @@ class DB:
 
 		self.connection.commit()
 
-	def execute_query(self, problem, date_today, Date_end, problem_str):
+	def execute_query(self, problem, date_today, Date_end):
 
 		priority = 'Нет'
 	
