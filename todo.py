@@ -193,7 +193,7 @@ class Add: #дочернее окно
 		self.problem_entry = tk.StringVar()
 		self.problem_entry.trace(mode="w", callback=self.validate)
 
-		self.problem = Entry(self.root2, width = 40)
+		self.problem = Entry(self.root2, width = 40, textvariable = self.problem_entry)
 		self.problem.place(x = 75, y = 5)
 
 		btn_add_problem = tk.Button(self.root2,
@@ -476,7 +476,7 @@ class DB:
 
 		self.connection.commit()
 
-	def execute_query(self, problem, date_today, Date_end, problem_str):
+	def execute_query(self, problem, date_today, Date_end):
 
 		priority = 'Нет'
 	
