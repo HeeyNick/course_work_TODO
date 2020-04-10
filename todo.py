@@ -122,6 +122,7 @@ class Main_win: #основное окно
 	def records(self,problem,date_today, date_end,problem_str):
 		 self.db.execute_query(problem,date_today, date_end,problem_str)
 		 self.view_records()
+		 problem_str.delete(0,'end')
 
 	def view_records(self):
 		self.db.cur.execute('''SELECT * FROM TODO''')
@@ -233,6 +234,9 @@ class Add: #дочернее окно
 								bd=3)
 
 		btn_add_destroy.place (x = 190, y = 100)
+
+		self.input_Date_end()
+
 		self.focuse()
 
 
@@ -262,6 +266,11 @@ class Add: #дочернее окно
 		if(self.Year_t > self.date_today.year):
 			self.Month_spin.config(from_= 1)
 			self.Day_spin.config(from_ = 1)
+
+		self.input_Date_end()
+
+	def input_Date_end(self):
+		self.Date_end = datetime.date(self.Year.get(), self.Month.get(), self.Day.get())
 
 class DB:
 	def __init__(self):
