@@ -15,14 +15,18 @@ class Main_win: #основное окно
 		self.root.geometry("900x600")
 		self.root.resizable(False, False)
 
+		x = (self.root.winfo_screenwidth() - self.root.winfo_reqwidth())/3.5
+		y = (self.root.winfo_screenheight() - self.root.winfo_reqheight())/3.7
+		self.root.wm_geometry("+%d+%d" % (x, y))
+
 		toolbar = tk.Frame(bg = 'Grey', width = 900, height = 100)
 		toolbar.place ( x =0, y = 0)
 
-
-
 		self.tree = ttk.Treeview(self.root, columns = ('ID','important','task','state','date_start','date_end'),
 									   height = 100,
-									   show = 'headings')
+									   show = 'headings', selectmode = "browse")
+
+		self.tree.place(x=0,y=100)
 
 		self.tree.column('ID', width = 30 , anchor = tk.CENTER)
 		self.tree.column('important', width = 60 , anchor = tk.CENTER)
@@ -37,8 +41,7 @@ class Main_win: #основное окно
 		self.tree.heading('state', text = 'Состояние')
 		self.tree.heading('date_start', text = 'Дата Начала')
 		self.tree.heading('date_end', text = 'Срок сдачи')
-
-		self.tree.place(x=0,y=100)
+		self.tree.bind('<ButtonRelease - 1>', self.select_id)
 
 		self.make_button(toolbar)
 
@@ -79,7 +82,7 @@ class Main_win: #основное окно
 								width = 100,
 								height = 100,
 								image = self.important,
-								#command = lambda:self.make_add(),
+								command = lambda:self.db.update_priority(self.id_),
 								bd=3)
 
 		btn_delete = tk.Button(perent,
@@ -94,7 +97,7 @@ class Main_win: #основное окно
 								width = 100,
 								height = 100,
 								image = self.performed,
-								#command = lambda:self.make_add(),
+								command = lambda:self.db.update_performed(self.id_),
 								bd=3)
 
 		btn_delete_performed = tk.Button(perent,
@@ -135,6 +138,10 @@ class Main_win: #основное окно
 	def Entry_Error(self, problem_str):
 		problem_str.config(bg = 'pink')
 
+	def select_id(self, args):
+		item = self.tree.selection()[0]
+		self.id_  = self.tree.item(item)['values'][0]
+
 
 	'''def print_problem_add_task(self, result_number, result_status, result_problem, result_date_now, result_date_end):
 		number = int(result_number[0][0])
@@ -154,6 +161,10 @@ class Add: #дочернее окно
 		self.root2.title('Add Task')
 		self.root2.geometry("350x130")
 		self.root2.resizable(False, False)
+
+		x = (self.root2.winfo_screenwidth() - self.root2.winfo_reqwidth()) / 2.25
+		y = (self.root2.winfo_screenheight() - self.root2.winfo_reqheight()) / 1.9
+		self.root2.wm_geometry("+%d+%d" % (x, y))
 
 		self.view = main_win
 		self.make_window(self.root2)
@@ -330,6 +341,26 @@ class DB:
 		print(self.date_end_numeral)
 		problem_str.delete(0,'end')
 		main_win.print_problem_add_task(self.result_number, self.result_status, self.result_problem, self.result_date_now, self.result_date_end)'''
+
+	def update_performed(self, id_):
+		status = 'Выполнено'
+		number = id_
+		self.cur.execute('''UPDATE TODO
+      			SET Статус = ?
+       			WHERE № = ?
+    			''', (status, number))
+		self.connection.commit()
+		main_win.view_records()
+
+	def update_priority(self, id_):
+		priority = 'Важное'
+		number = id_
+		self.cur.execute('''UPDATE TODO
+      			SET Приоритет = ?
+       			WHERE № = ?
+    			''', (priority, number))
+		self.connection.commit()
+		main_win.view_records()
 
 if __name__ == "__main__":
 
