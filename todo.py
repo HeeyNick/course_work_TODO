@@ -6,9 +6,7 @@ import datetime
 from tkinter.tix import *
 from tkinter import messagebox as mb
 
-###################################################################
-####################Графическая оболочка###########################
-###################################################################
+
 
 class Main_win: #основное окно
 	def __init__(self):
@@ -84,7 +82,7 @@ class Main_win: #основное окно
 								width = 100,
 								height = 100,
 								image = self.important,
-								#command = lambda:self.make_add(),
+								command = lambda:self.db.update_priority(self.id),
 								bd=3)
 
 		btn_delete = tk.Button(perent,
@@ -99,7 +97,7 @@ class Main_win: #основное окно
 								width = 100,
 								height = 100,
 								image = self.performed,
-								#command = lambda:self.make_add(),
+								command = lambda:self.db.update_perfomed(self.id),
 								bd=3)
 
 		btn_delete_performed = tk.Button(perent,
@@ -148,14 +146,6 @@ class Main_win: #основное окно
 		problem_str.config(bg = "Pink")
 
 
-	'''def print_problem_add_task(self, result_number, result_status, result_problem, result_date_now, result_date_end):
-		number = int(result_number[0][0])
-		Label(self.root, text=result_number, font = "Times 16").place(x = 50 , y = 150  + (number - 1) * 50  )
-		status_problem = result_problem + '    ' + result_status + '   ' + result_date_now + '   ' + result_date_end #
-		Label(self.root, text=status_problem, font = "Times 16").place(x = 90 , y = 150 + (number - 1) * 50)'''
-
-
-########Тест чтобы вызвать дочернее окно , потом назначить на кнопку##
 
 	def reference(self):
 		Reference(self.root)
@@ -484,30 +474,6 @@ class DB:
 		self.cur.execute('''INSERT INTO TODO(Приоритет,Задача, Статус, Дата_добавления, Дата_окончания) VALUES (?,?,?,?, ?)''',
                        (priority,problem, status, date_today, Date_end))
 		self.connection.commit()
-
-		'''self.cur.execute("SELECT № FROM TODO ORDER BY № DESC LIMIT 1;")
-		self.result_number = self.cur.fetchall()
-		self.cur.execute("SELECT Задача FROM TODO ORDER BY № DESC LIMIT 1;")
-		self.result_problem = self.cur.fetchall()
-		self.cur.execute("SELECT Статус FROM TODO ORDER BY № DESC LIMIT 1;")
-		self.result_status = self.cur.fetchall()
-		self.cur.execute("SELECT Дата_окончания FROM TODO ORDER BY № DESC LIMIT 1;")
-		self.result_date_end = self.cur.fetchall()
-		self.cur.execute("SELECT Дата_добавления FROM TODO ORDER BY № DESC LIMIT 1;")
-		self.result_date_now = self.cur.fetchall()
-		self.result_status = str(self.result_status[0][0])
-		self.result_problem = str(self.result_problem[0][0])
-		self.result_date_end = str(self.result_date_end[0][0])
-		self.result_date_now = str(self.result_date_now[0][0])
-		self.date_end_numeral = [int(x) for x in self.result_date_end.split("-")]
-		day_end = int(self.date_end_numeral[2])
-		month_end =int(self.date_end_numeral[1])
-		year_end = int(self.date_end_numeral[0])
-		self.date_end_less = datetime.date(year_end, month_end, day_end)
-
-		print(self.date_end_numeral)
-		problem_str.delete(0,'end')
-		main_win.print_problem_add_task(self.result_number, self.result_status, self.result_problem, self.result_date_now, self.result_date_end)'''
 
 
 
