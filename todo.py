@@ -158,6 +158,7 @@ class Main_win: #основное окно
 		[self.tree.delete(i) for i in self.tree.get_children()]
 		[self.tree.insert('', 'end', values = row) for row in self.db.cur.fetchall()]
 
+
 	def Entry_Error(self, problem_str):
 		problem_str.config(bg = 'pink')
 
@@ -170,8 +171,8 @@ class Main_win: #основное окно
 
 	def make_add(self):
 		Add(self.root)
-	def change_problem(self):
-		Change(self.root)
+	def change_problem(self,):
+		Change(self.root, self.id_)
 	def delete_problem(self):
 		Delete(self.root)
 	def clear(self):
@@ -184,6 +185,12 @@ class Main_win: #основное окно
 		About(self.root)
 	def reference(self):
 		Reference(self.root)
+
+
+
+###########################################################################################################################################
+################################                    Add                        ############################################################
+###########################################################################################################################################
 
 
 class Add: #дочернее окно
@@ -322,32 +329,57 @@ class Add: #дочернее окно
 
 	def validate(self, *args):
 		self.problem.config(bg = 'white')
+
+
+
+###########################################################################################################################################
+################################                Change                        #############################################################
+###########################################################################################################################################
+
 class Change: 
-	def __init__(self, perent):
+	def __init__(self, perent, id_):
+
+		self.db = db
+
+		id_for_change = id_
+
 		self.root3 = tk.Toplevel(perent)
 		self.root3.title('Изменить')
 		self.root3.geometry("500x160")
 		self.root3.resizable(False, False)
 
 		id_change = tk.StringVar()
-		id_change.set(1)
-		problem_change = tk.StringVar()
-		problem_change.set(12)
+		id_change.set(id_)
 
-		self.cp_label = Label(self.root3, text = "Вы выбрали задачу под ID:", font= "Arial 12").place(x=140,y=10)
-		self.id_label = Label(self.root3, textvariable = id_change, font = "Arial 12").place(x=340, y=10)
-		Label(self.root3, text = "Введите новый текст в поле ниже:", font = "Arial 11").place(x=135, y = 55)
-		self.cp = Entry(self.root3, textvariable=problem_change, width = 60).place(x=70, y=80)
+
+
+		self.cp_label = Label(self.root3,
+							  text = "Вы выбрали задачу под ID:", 
+							  font= "Arial 12").place(x=140,y=10)
+		self.id_label = Label(self.root3,
+							  textvariable = id_change, 
+							  font = "Arial 12").place(x=340, y=10)
+		Label(self.root3, 
+			  text = "Введите новый текст в поле ниже:",				
+			  font = "Arial 11").place(x=135, y = 55)
+
+		self.new_problem = Entry(self.root3,
+								 width = 60)
+
 		btn_change_problem = tk.Button(self.root3,
 							 	text = "Изменить",
 							 	width = 13,
 							 	height = 1,
-							 	command = lambda:self.root3.destroy(),
+							 	command = lambda:self.db.update_record(self.new_problem.get(), id_for_change),
 							 	bg = "LightGrey",
 							 	bd=1)
+
+		self.new_problem.place(x=70, y=80)
 		btn_change_problem.place(x = 200, y = 110)
 
 		self.focuse()
+
+
 
 	def focuse(self):
 		self.root3.grab_set()
@@ -474,15 +506,25 @@ class DelPerf:
 		self.root6.focus_set()
 		self.root6.wait_window()
 
+
+
+###########################################################################################################################################
+################################                            delete            #############################################################
+###########################################################################################################################################
+
+
 class Delete:
 	def __init__(self, perent):
+
+		self.db = db
+
 		self.root8 = tk.Toplevel(perent)
 		self.root8.title('Удалить')
 		self.root8.geometry("400x100")
 		self.root8.resizable(False, False)
 
 		nomer = tk.StringVar()
-		nomer.set(9999)
+		nomer.set(delete_id)
 
 
 		Label(self.root8, text = 'Вы уверены, что хотите удалить задачу под ID:', font = "Arial 11").place(x=15, rely=.1)
@@ -491,7 +533,7 @@ class Delete:
 							 	text = "Да",
 							 	width = 3,
 							 	height = 1,
-							 	command = lambda:self.root8.destroy(),
+							 	#command = lambda:self.db.delete_records(int(delete_id)),
 							 	bg = "LightGrey",
 							 	bd=1)
 		btn_yes.place(relx = .3, rely = .5)
@@ -503,6 +545,8 @@ class Delete:
 							 	bg = "LightGrey",
 							 	bd=1)
 		btn_no.place(relx = .6, rely = .5)
+
+
 		self.focuse()
 
 	def focuse(self):
@@ -558,11 +602,36 @@ class DB:
     			''', (priority, number))
 		self.connection.commit()
 		main_win.view_records()
+
+	def update_record(self ,new_problem, id_):
+		number = id_
+		self.cur.execute('''UPDATE TODO
+      			SET Задача = ?
+       			WHERE № = ?
+    			''', (new_problem, number))
+		self.connection.commit()
+		main_win.view_records()
+
+
+
+
+		'''self.cur.execute(SELECT * FROM TODO)
+		self.res = self.cur.fetchall()
+		for i in self.res:
+			print(self.res)'''
+
+
+
+
 	def clear_all_problems(self):
 		self.cur.execute('''DELETE FROM TODO''')
 		self.connection.commit()
 		main_win.view_records()
 		mb.showinfo("Готово", "Список задач очищен")
+
+
+
+	
 
 if __name__ == "__main__":
 
