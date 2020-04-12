@@ -4,9 +4,6 @@ from tkinter import ttk
 import sqlite3 as lite
 import datetime
 
-###################################################################
-####################Графическая оболочка###########################
-###################################################################
 
 class Main_win: #основное окно
 	def __init__(self):
@@ -143,14 +140,7 @@ class Main_win: #основное окно
 		self.id_  = self.tree.item(item)['values'][0]
 
 
-	'''def print_problem_add_task(self, result_number, result_status, result_problem, result_date_now, result_date_end):
-		number = int(result_number[0][0])
-		Label(self.root, text=result_number, font = "Times 16").place(x = 50 , y = 150  + (number - 1) * 50  )
-		status_problem = result_problem + '    ' + result_status + '   ' + result_date_now + '   ' + result_date_end #
-		Label(self.root, text=status_problem, font = "Times 16").place(x = 90 , y = 150 + (number - 1) * 50)'''
-
-
-########Тест чтобы вызвать дочернее окно , потом назначить на кнопку##
+	
 
 	def make_add(self):
 		Add(self.root)
@@ -318,29 +308,7 @@ class DB:
                        (priority,problem, status, date_today, Date_end))
 		self.connection.commit()
 
-		'''self.cur.execute("SELECT № FROM TODO ORDER BY № DESC LIMIT 1;")
-		self.result_number = self.cur.fetchall()
-		self.cur.execute("SELECT Задача FROM TODO ORDER BY № DESC LIMIT 1;")
-		self.result_problem = self.cur.fetchall()
-		self.cur.execute("SELECT Статус FROM TODO ORDER BY № DESC LIMIT 1;")
-		self.result_status = self.cur.fetchall()
-		self.cur.execute("SELECT Дата_окончания FROM TODO ORDER BY № DESC LIMIT 1;")
-		self.result_date_end = self.cur.fetchall()
-		self.cur.execute("SELECT Дата_добавления FROM TODO ORDER BY № DESC LIMIT 1;")
-		self.result_date_now = self.cur.fetchall()
-		self.result_status = str(self.result_status[0][0])
-		self.result_problem = str(self.result_problem[0][0])
-		self.result_date_end = str(self.result_date_end[0][0])
-		self.result_date_now = str(self.result_date_now[0][0])
-		self.date_end_numeral = [int(x) for x in self.result_date_end.split("-")]
-		day_end = int(self.date_end_numeral[2])
-		month_end =int(self.date_end_numeral[1])
-		year_end = int(self.date_end_numeral[0])
-		self.date_end_less = datetime.date(year_end, month_end, day_end)
-
-		print(self.date_end_numeral)
-		problem_str.delete(0,'end')
-		main_win.print_problem_add_task(self.result_number, self.result_status, self.result_problem, self.result_date_now, self.result_date_end)'''
+		
 
 	def update_performed(self, id_):
 		status = 'Выполнено'
