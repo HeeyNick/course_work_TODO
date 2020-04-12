@@ -27,7 +27,7 @@ class Main_win: #основное окно
 
 		self.tree = ttk.Treeview(self.root, columns = ('ID','important','task','state','date_start','date_end'),
 									   height = 100,
-									   show = 'headings')
+									   show = 'headings', selectmode = "browse")
 
 		self.tree.heading('ID', text = 'ID')
 		self.tree.heading('important', text = 'Приоритет')
