@@ -6,6 +6,12 @@ import datetime
 from tkinter import messagebox as mb
 
 
+
+
+###########################################################################################################################################
+################################                                  Main                       ##############################################
+###########################################################################################################################################
+
 class Main_win: #основное окно
 	def __init__(self):
 		self.root = tk.Tk()
@@ -32,9 +38,13 @@ class Main_win: #основное окно
 									   height = 100,
 									   show = 'headings', selectmode = "browse")
 
+		##
+		self.tree.insert('', 'end', text = 'your text', tags = ('oddrow',)) 
+		self.tree.tag_configure('oddrow', background='orange')
+		###
 		self.tree.place(x=0,y=100)
 
-		self.tree.column('ID', width = 30 , anchor = tk.CENTER)
+		self.tree.column('ID', width = 30 , anchor = tk.CENTER,)
 		self.tree.column('important', width = 60 , anchor = tk.CENTER)
 		self.tree.column('task', width = 490 , anchor = tk.CENTER)
 		self.tree.column('state', width = 130 , anchor = tk.CENTER)
@@ -80,7 +90,6 @@ class Main_win: #основное окно
 								height = 100,
 								image= self.change,
 								command = lambda:self.change_problem(),
-								
 								bd=3)
 
 
@@ -154,7 +163,7 @@ class Main_win: #основное окно
 		problem_str.delete(0, 'end')
 
 	def view_records(self):
-		self.db.cur.execute('''SELECT * FROM TODO''')
+		self.db.cur.execute('''SELECT * FROM TODO ORDER BY Приоритет''')
 		[self.tree.delete(i) for i in self.tree.get_children()]
 		[self.tree.insert('', 'end', values = row) for row in self.db.cur.fetchall()]
 
@@ -189,7 +198,7 @@ class Main_win: #основное окно
 
 
 ###########################################################################################################################################
-################################                    Add                        ############################################################
+################################                                  Add                        ##############################################
 ###########################################################################################################################################
 
 
@@ -370,7 +379,7 @@ class Change:
 							 	text = "Изменить",
 							 	width = 13,
 							 	height = 1,
-							 	command = lambda:self.db.update_record(self.new_problem.get(), id_for_change),
+							 	command = lambda:self.records(self.new_problem.get(), id_for_change),
 							 	bg = "LightGrey",
 							 	bd=1)
 
@@ -380,11 +389,25 @@ class Change:
 		self.focuse()
 
 
+	def records(self, problem,id_for_change ):
+		if (problem != ''):
+			db.update_record(problem, id_for_change)
+			self.root3.destroy()
+		else:
+			mb.showerror("Ошибка", "Поле 'Задача' не должно быть пустым!")
+			#main_win.view_records()
+
 
 	def focuse(self):
 		self.root3.grab_set()
 		self.root3.focus_set()
 		self.root3.wait_window()
+
+
+
+###########################################################################################################################################
+################################                    Info                      #############################################################
+###########################################################################################################################################
 
 class Info: 
 	def __init__(self, perent):
@@ -417,6 +440,10 @@ class Info:
 		self.root7.grab_set()
 		self.root7.focus_set()
 		self.root7.wait_window()
+
+###########################################################################################################################################
+################################                            Reference           ###########################################################
+###########################################################################################################################################
 
 class Reference: 
 	def __init__(self, perent):
@@ -452,6 +479,11 @@ class Reference:
 		self.root4.focus_set()
 		self.root4.wait_window()
 
+
+###########################################################################################################################################
+################################                            About           #############################################################
+###########################################################################################################################################
+
 class About: 
 	def __init__(self, perent):
 		self.root5 = tk.Toplevel(perent)
@@ -474,6 +506,11 @@ class About:
 		self.root5.grab_set()
 		self.root5.focus_set()
 		self.root5.wait_window()
+
+
+###########################################################################################################################################
+################################                            Delete            #############################################################
+###########################################################################################################################################
        
 class DelPerf: 
 	def __init__(self, perent):
@@ -509,7 +546,7 @@ class DelPerf:
 
 
 ###########################################################################################################################################
-################################                            delete            #############################################################
+################################                            delete performed         ######################################################
 ###########################################################################################################################################
 
 
@@ -533,7 +570,7 @@ class Delete:
 							 	text = "Да",
 							 	width = 3,
 							 	height = 1,
-							 	command = lambda:db.delete_problem(main_win.id_),
+							 	command = lambda:self.delete_and_destroy(),
 							 	bg = "LightGrey",
 							 	bd=1)
 		btn_yes.place(relx = .3, rely = .5)
@@ -547,10 +584,18 @@ class Delete:
 		btn_no.place(relx = .6, rely = .5)
 		self.focuse()
 
+	def delete_and_destroy(self):
+		db.delete_problem(main_win.id_)
+		self.root8.destroy()
+
 	def focuse(self):
 		self.root8.grab_set()
 		self.root8.focus_set()
 		self.root8.wait_window()
+
+###########################################################################################################################################
+################################                            DateBase            #############################################################
+###########################################################################################################################################
         
 class DB:
 	def __init__(self):
@@ -602,12 +647,14 @@ class DB:
 
 	def update_record(self ,new_problem, id_):
 		number = id_
+
 		self.cur.execute('''UPDATE TODO
       			SET Задача = ?
        			WHERE № = ?
     			''', (new_problem, number))
 		self.connection.commit()
 		main_win.view_records()
+
 
 	def clear_all_problems(self):
 		self.cur.execute('''DROP TABLE TODO''')
