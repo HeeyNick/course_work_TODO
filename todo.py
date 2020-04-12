@@ -25,7 +25,7 @@ class Main_win: #основное окно
 		self.root.config(menu = self.menubar)
 
 
-		toolbar = tk.Frame(bg = 'Grey', width = 900, height = 100)
+		toolbar = tk.Frame(bg = 'White', width = 900, height = 100)
 		toolbar.place ( x =0, y = 0)
 
 		self.tree = ttk.Treeview(self.root, columns = ('ID','important','task','state','date_start','date_end'),
@@ -515,16 +515,16 @@ class DelPerf:
 
 class Delete:
 	def __init__(self, perent):
-
-		self.db = db
-
 		self.root8 = tk.Toplevel(perent)
 		self.root8.title('Удалить')
 		self.root8.geometry("400x100")
 		self.root8.resizable(False, False)
+		self.main_win = Main_win
+		self.db = DB
+
 
 		nomer = tk.StringVar()
-		nomer.set(delete_id)
+		nomer.set(main_win.id_)
 
 
 		Label(self.root8, text = 'Вы уверены, что хотите удалить задачу под ID:', font = "Arial 11").place(x=15, rely=.1)
@@ -533,7 +533,7 @@ class Delete:
 							 	text = "Да",
 							 	width = 3,
 							 	height = 1,
-							 	#command = lambda:self.db.delete_records(int(delete_id)),
+							 	command = lambda:db.delete_problem(main_win.id_),
 							 	bg = "LightGrey",
 							 	bd=1)
 		btn_yes.place(relx = .3, rely = .5)
@@ -545,8 +545,6 @@ class Delete:
 							 	bg = "LightGrey",
 							 	bd=1)
 		btn_no.place(relx = .6, rely = .5)
-
-
 		self.focuse()
 
 	def focuse(self):
@@ -554,7 +552,6 @@ class Delete:
 		self.root8.focus_set()
 		self.root8.wait_window()
         
-
 class DB:
 	def __init__(self):
 		self.connection = lite.connect("to_do_list.db")
@@ -612,26 +609,28 @@ class DB:
 		self.connection.commit()
 		main_win.view_records()
 
-
-
-
-		'''self.cur.execute(SELECT * FROM TODO)
-		self.res = self.cur.fetchall()
-		for i in self.res:
-			print(self.res)'''
-
-
-
-
 	def clear_all_problems(self):
-		self.cur.execute('''DELETE FROM TODO''')
+		self.cur.execute('''DROP TABLE TODO''')
+		self.cur.execute("""
+			CREATE TABLE IF NOT EXISTS TODO (
+  			№ INTEGER PRIMARY KEY AUTOINCREMENT,
+  			Приоритет TEXT, 
+  			Задача TEXT NOT NULL,
+ 			Статус TEXT ,
+ 			Дата_добавления DATE,
+ 			Дата_окончания DATE
+			)
+			""")
 		self.connection.commit()
 		main_win.view_records()
 		mb.showinfo("Готово", "Список задач очищен")
 
-
-
-	
+	def delete_problem(self, id_):
+		number = id_
+		number = tuple([number])
+		self.cur.execute('''DELETE FROM TODO WHERE № = ?''', (number))
+		self.connection.commit()
+		main_win.view_records()
 
 if __name__ == "__main__":
 
