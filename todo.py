@@ -8,6 +8,7 @@ from tkinter import messagebox as mb
 
 
 
+
 ###########################################################################################################################################
 ################################                                  Main                       ##############################################
 ###########################################################################################################################################
@@ -184,7 +185,7 @@ class Main_win: #основное окно
 		Change(self.root, self.id_)
 	def delete_problem(self):
 		Delete(self.root)
-	def clear(self):
+	def clear(self): # очистить все
 		answer = mb.askyesno("Очистить все", "Вы уверены, что хотите удалить все задачи?\nДанная операция полностью удалит все задачи (выполненные и невыполненные) без возможности восстановления")
 		if answer == True:
 			db.clear_all_problems()
@@ -202,7 +203,7 @@ class Main_win: #основное окно
 ###########################################################################################################################################
 
 
-class Add: #дочернее окно
+class Add: #дочернее окно добавления задачи
 	def __init__(self, perent):
 		self.root2 = tk.Toplevel(perent)
 		self.root2.title('Add Task')
@@ -345,7 +346,7 @@ class Add: #дочернее окно
 ################################                Change                        #############################################################
 ###########################################################################################################################################
 
-class Change: 
+class Change: # дочернее окно изменения задачи
 	def __init__(self, perent, id_):
 
 		self.db = db
@@ -356,6 +357,10 @@ class Change:
 		self.root3.title('Изменить')
 		self.root3.geometry("500x160")
 		self.root3.resizable(False, False)
+
+		x = (self.root3.winfo_screenwidth() - self.root3.winfo_reqwidth()) / 2.5
+		y = (self.root3.winfo_screenheight() - self.root3.winfo_reqheight()) / 1.9
+		self.root3.wm_geometry("+%d+%d" % (x, y))
 
 		id_change = tk.StringVar()
 		id_change.set(id_)
@@ -409,22 +414,27 @@ class Change:
 ################################                    Info                      #############################################################
 ###########################################################################################################################################
 
-class Info: 
+class Info: # дочернее окно информации о задачах
 	def __init__(self, perent):
+		self.db = DB
 		self.root7 = tk.Toplevel(perent)
 		self.root7.title('Информация')
-		self.root7.geometry("300x200")
+		self.root7.geometry("250x220")
 		self.root7.resizable(False, False)
 
-		pass_count = tk.StringVar()
-		pass_count.set(12)
-		fail_count = tk.StringVar()
-		fail_count.set(14)
-		Label(self.root7, text = 'На данный момент:', font = "Arial 15").place(x = 60, y = 10)
-		Label(self.root7, textvariable = pass_count, fg = "Green", font = "Arial 13").place(x=20, y=60)
-		Label(self.root7, textvariable = fail_count, fg = "Red", font = "Arial 13").place(x=20, y=90)
+		x = (self.root7.winfo_screenwidth() - self.root7.winfo_reqwidth()) / 2.1
+		y = (self.root7.winfo_screenheight() - self.root7.winfo_reqheight()) / 1.9
+		self.root7.wm_geometry("+%d+%d" % (x, y))
+
+		Label(self.root7, text = 'На данный момент:', font = "Arial 15").place(x = 30, y = 10)
+		Label(self.root7, text = db.pass_count(), fg = "Green", font = "Arial 13").place(x=20, y=60)
+		Label(self.root7, text = db.fail_count(), fg = "Red", font = "Arial 13").place(x=20, y=90)
 		Label(self.root7, text = "задач выполнено", fg = "Green", font = "Arial 13").place(x=50, y=60)
 		Label(self.root7, text = "задач не выполнено", fg = "Red", font = "Arial 13").place(x=50, y=90)
+		Label(self.root7, text = db.important_count(), fg = "Crimson", font = "Arial 13").place(x=20, y=120)
+		Label(self.root7, text = "важных задач", fg = "Crimson", font = "Arial 13").place(x=50, y = 120)
+		Label(self.root7, text = db.all_count(), font = "Arial 13").place(x=20, y = 150)
+		Label(self.root7, text = "задач всего", font = "Arial 13").place(x=50, y =150)
 
 		btn_okay = tk.Button(self.root7,
 							 	text = "Окей",
@@ -433,7 +443,7 @@ class Info:
 							 	command = lambda:self.root7.destroy(),
 							 	bg = "LightGrey",
 							 	bd=1)
-		btn_okay.place(x = 100, y = 140)			
+		btn_okay.place(x = 75, y = 190)			
 		self.focuse()
 
 	def focuse(self):
@@ -445,12 +455,17 @@ class Info:
 ################################                            Reference           ###########################################################
 ###########################################################################################################################################
 
-class Reference: 
+class Reference: # дочернее окно помощи 
 	def __init__(self, perent):
 		self.root4 = tk.Toplevel(perent)
 		self.root4.title('Справка')
-		self.root4.geometry("550x300")
+		self.root4.geometry("650x350")
 		self.root4.resizable(False, False)
+
+		x = (self.root4.winfo_screenwidth() - self.root4.winfo_reqwidth()) / 2.75
+		y = (self.root4.winfo_screenheight() - self.root4.winfo_reqheight()) / 1.9
+		self.root4.wm_geometry("+%d+%d" % (x, y))
+
 		self.add=PhotoImage(file='referencelogos/3.png')
 		self.change=PhotoImage(file='referencelogos/6.png')
 		self.important=PhotoImage(file='referencelogos/4.png')
@@ -458,6 +473,8 @@ class Reference:
 		self.performed=PhotoImage(file='referencelogos/1.png')
 		self.delperf=PhotoImage(file='referencelogos/5.png')
 		self.information=PhotoImage(file='referencelogos/333.png')
+		self.clearall=PhotoImage(file='referencelogos/444.png')
+		
 		Label(self.root4, text = '- нажмите, чтобы добавить задачу', font = "Arial 11").place(x=40, y=13)
 		img1 = Label(self.root4, image = self.add).place(x = 10, y = 10)
 		Label(self.root4, text = '- выделив задачу, нажмите, чтобы изменить текст задачи', font = "Arial 11").place(x=40, y=53)
@@ -470,8 +487,11 @@ class Reference:
 		img5 = Label(self.root4, image = self.performed).place(x = 10, y = 170)
 		Label(self.root4, text = '- нажмите, чтобы удалить все задачи, отмеченные как выполненные', font = "Arial 11").place(x=40, y=213)
 		img6 = Label(self.root4, image = self.delperf).place(x = 10, y = 210)
-		Label(self.root4, text = '- нажмите, чтобы увидеть информацию о задачах', font = "Arial 11").place(x=130, y=253)
+		Label(self.root4, text = '- нажмите, чтобы увидеть информацию о задачах', font = "Arial 11").place(x=115, y=253)
 		img7 = Label(self.root4, image = self.information).place(x = 10, y = 250)
+		Label(self.root4, text = '- нажмите, чтобы удалить все задачи (выполненные и невыполненные)', font = "Arial 11").place(x=110, y = 293)
+		img8 = Label(self.root4, image = self.clearall).place(x=10, y = 290)
+
 		self.focuse()
 
 	def focuse(self):
@@ -484,12 +504,17 @@ class Reference:
 ################################                            About           #############################################################
 ###########################################################################################################################################
 
-class About: 
+class About: # дочернее окно о приложении
 	def __init__(self, perent):
 		self.root5 = tk.Toplevel(perent)
 		self.root5.title('О приложении')
 		self.root5.geometry("900x900")
 		self.root5.resizable(False, False)
+
+		x = (self.root5.winfo_screenwidth() - self.root5.winfo_reqwidth()) / 3.5
+		y = (self.root5.winfo_screenheight() - self.root5.winfo_reqheight()) / 11
+		self.root5.wm_geometry("+%d+%d" % (x, y))
+
 		Label(self.root5, text = "TODO LIST", font = "Arial 15").place(x=375, y=20)
 		Label(self.root5, text = "Приложение TODO LIST содержит следующие функции:", font = "Arial 11").place(x = 20, y = 60)
 		Label(self.root5, text = "1. Добавление задачи в список дел;").place(x=20, y = 90)
@@ -550,8 +575,10 @@ class DelPerf:
 ###########################################################################################################################################
 
 
-class Delete:
+class Delete: # дочернее окно удаления задачи
 	def __init__(self, perent):
+		nomer = tk.StringVar()
+		nomer.set(main_win.id_)
 		self.root8 = tk.Toplevel(perent)
 		self.root8.title('Удалить')
 		self.root8.geometry("400x100")
@@ -559,9 +586,9 @@ class Delete:
 		self.main_win = Main_win
 		self.db = DB
 
-
-		nomer = tk.StringVar()
-		nomer.set(main_win.id_)
+		x = (self.root8.winfo_screenwidth() - self.root8.winfo_reqwidth()) / 2.25
+		y = (self.root8.winfo_screenheight() - self.root8.winfo_reqheight()) / 1.9
+		self.root8.wm_geometry("+%d+%d" % (x, y))
 
 
 		Label(self.root8, text = 'Вы уверены, что хотите удалить задачу под ID:', font = "Arial 11").place(x=15, rely=.1)
@@ -679,9 +706,36 @@ class DB:
 		self.connection.commit()
 		main_win.view_records()
 
+	def important_count(self):
+		self.cur.execute('''SELECT * FROM TODO WHERE Приоритет = "Важное"''').rowcount
+		rows = self.cur.fetchall()
+		count_imp = len(rows)
+		self.connection.commit()
+		return count_imp
+
+	def pass_count(self):
+		self.cur.execute('''SELECT * FROM TODO WHERE Статус = "Выполнено"''').rowcount
+		rows = self.cur.fetchall()
+		count_perf = len(rows)
+		self.connection.commit()
+		return count_perf
+
+	def fail_count(self):
+		self.cur.execute('''SELECT * FROM TODO WHERE Статус = "Не выполнено"''').rowcount
+		rows = self.cur.fetchall()
+		count_fail = len(rows)
+		self.connection.commit()
+		return count_fail
+
+	def all_count(self):
+		self.cur.execute('''SELECT * FROM TODO''').rowcount
+		rows = self.cur.fetchall()
+		count_all = len(rows)
+		self.connection.commit()
+		return count_all
+
 if __name__ == "__main__":
 
 	db = DB()
 	main_win = Main_win()
 	main_win.run()
-
