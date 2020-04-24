@@ -35,7 +35,7 @@ class Main_win: #основное окно
 		toolbar = tk.Frame(bg = 'White', width = 900, height = 100)
 		toolbar.place ( x =0, y = 0)
 
-		self.tree = ttk.Treeview(self.root, columns = ('ID','important','task','state','date_start','date_end'),
+		self.tree = ttk.Treeview(self.root, columns = ('important','task','state','date_start','date_end','ID'),
 									   height = 100,
 									   show = 'headings', selectmode = "browse")
 
@@ -45,19 +45,21 @@ class Main_win: #основное окно
 		###
 		self.tree.place(x=0,y=100)
 
-		self.tree.column('ID', width = 30 , anchor = tk.CENTER,)
-		self.tree.column('important', width = 60 , anchor = tk.CENTER)
-		self.tree.column('task', width = 490 , anchor = tk.CENTER)
+		
+		self.tree.column('important', width = 70 , anchor = tk.CENTER)
+		self.tree.column('task', width = 510 , anchor = tk.CENTER)
 		self.tree.column('state', width = 130 , anchor = tk.CENTER)
 		self.tree.column('date_start', width = 100 , anchor = tk.CENTER)
 		self.tree.column('date_end', width = 100 , anchor = tk.CENTER)
+		self.tree.column('ID', width = 30 , anchor = tk.CENTER)
 
-		self.tree.heading('ID', text = 'ID')
+		
 		self.tree.heading('important', text = 'Приоритет')
 		self.tree.heading('task', text = 'Задание')
 		self.tree.heading('state', text = 'Состояние')
 		self.tree.heading('date_start', text = 'Дата Начала')
 		self.tree.heading('date_end', text = 'Срок сдачи')
+		self.tree.heading('ID',text = 'ID')
 		self.tree.bind('<ButtonRelease - 1>', self.select_id)
 
 		self.make_button(toolbar)
@@ -165,6 +167,7 @@ class Main_win: #основное окно
 
 	def view_records(self):
 		self.db.cur.execute('''SELECT * FROM TODO ORDER BY Приоритет''')
+		
 		[self.tree.delete(i) for i in self.tree.get_children()]
 		[self.tree.insert('', 'end', values = row) for row in self.db.cur.fetchall()]
 
@@ -173,8 +176,8 @@ class Main_win: #основное окно
 		problem_str.config(bg = 'pink')
 
 	def select_id(self, args):
-		item = self.tree.selection()[0]
-		self.id_  = self.tree.item(item)['values'][0]
+		item = self.tree.selection()[-1]
+		self.id_  = self.tree.item(item)['values'][-1]
 
 
 	
@@ -189,6 +192,8 @@ class Main_win: #основное окно
 		answer = mb.askyesno("Очистить все", "Вы уверены, что хотите удалить все задачи?\nДанная операция полностью удалит все задачи (выполненные и невыполненные) без возможности восстановления")
 		if answer == True:
 			db.clear_all_problems()
+	def delete_performed(self):
+		DelPerf(self.root)
 	def info(self):
 		Info(self.root)
 	def about(self):
@@ -351,7 +356,7 @@ class Change: # дочернее окно изменения задачи
 
 		self.db = db
 
-		id_for_change = id_
+
 
 		self.root3 = tk.Toplevel(perent)
 		self.root3.title('Изменить')
@@ -362,20 +367,10 @@ class Change: # дочернее окно изменения задачи
 		y = (self.root3.winfo_screenheight() - self.root3.winfo_reqheight()) / 1.9
 		self.root3.wm_geometry("+%d+%d" % (x, y))
 
-		id_change = tk.StringVar()
-		id_change.set(id_)
 
-
-
-		self.cp_label = Label(self.root3,
-							  text = "Вы выбрали задачу под ID:", 
-							  font= "Arial 12").place(x=140,y=10)
-		self.id_label = Label(self.root3,
-							  textvariable = id_change, 
-							  font = "Arial 12").place(x=340, y=10)
 		Label(self.root3, 
 			  text = "Введите новый текст в поле ниже:",				
-			  font = "Arial 11").place(x=135, y = 55)
+			  font = "Arial 16").place(x=91, y = 40)
 
 		self.new_problem = Entry(self.root3,
 								 width = 60)
@@ -388,8 +383,8 @@ class Change: # дочернее окно изменения задачи
 							 	bg = "LightGrey",
 							 	bd=1)
 
-		self.new_problem.place(x=70, y=80)
-		btn_change_problem.place(x = 200, y = 110)
+		self.new_problem.place(x=70, y=70)
+		btn_change_problem.place(x = 200, y = 100)
 
 		self.focuse()
 
@@ -534,7 +529,7 @@ class About: # дочернее окно о приложении
 
 
 ###########################################################################################################################################
-################################                            Delete            #############################################################
+################################                            Delete Perdomed          ######################################################
 ###########################################################################################################################################
        
 class DelPerf: 
@@ -544,15 +539,24 @@ class DelPerf:
 		self.root6.geometry("330x90")
 		self.root6.resizable(False, False)
 		txt_dev = Text()
-		Label(self.root6, text = 'Вы уверены, что хотите удалить выполненные задачи?').place(x=15, rely=.1)
+
+		self.db = db
+
+		x = (self.root6.winfo_screenwidth() - self.root6.winfo_reqwidth()) / 2.25
+		y = (self.root6.winfo_screenheight() - self.root6.winfo_reqheight()) / 1.9
+		self.root6.wm_geometry("+%d+%d" % (x, y))
+
+		Label(self.root6, text = 'Вы уверены, что хотите удалить выполненные задачи ').place(x=15, rely=.1)
 		btn_yes = tk.Button(self.root6,
 							 	text = "Да",
 							 	width = 3,
 							 	height = 1,
-							 	command = lambda:self.root6.destroy(),
+							 	command = lambda:self.delete_if_yes(),
 							 	bg = "LightGrey",
 							 	bd=1)
 		btn_yes.place(relx = .3, rely = .5)
+
+
 		btn_no = tk.Button(self.root6,
 							 	text = "Нет",
 							 	width = 3,
@@ -562,7 +566,23 @@ class DelPerf:
 							 	bd=1)
 		btn_no.place(relx = .6, rely = .5)
 		self.focuse()
+	def delete_if_yes(self):
+		i = 0
+		db.cur.execute('''SELECT Статус FROM TODO''')
+		rows = db.cur.fetchall()
+		for row in rows:
+			if row[0] == "Выполнено":
+				i+=1
+		if i != 0:
+			db.delete_perfomed_in_bd()
+			self.root6.destroy()
+		else:
+			self.root6.destroy()
+			mb.showinfo("Ошибка", "Нет ни одной выполененной задачи((")
 
+
+		
+	
 	def focuse(self):
 		self.root6.grab_set()
 		self.root6.focus_set()
@@ -571,14 +591,12 @@ class DelPerf:
 
 
 ###########################################################################################################################################
-################################                            delete performed         ######################################################
+################################                            DElite                   ######################################################
 ###########################################################################################################################################
 
 
 class Delete: # дочернее окно удаления задачи
 	def __init__(self, perent):
-		nomer = tk.StringVar()
-		nomer.set(main_win.id_)
 		self.root8 = tk.Toplevel(perent)
 		self.root8.title('Удалить')
 		self.root8.geometry("400x100")
@@ -591,8 +609,8 @@ class Delete: # дочернее окно удаления задачи
 		self.root8.wm_geometry("+%d+%d" % (x, y))
 
 
-		Label(self.root8, text = 'Вы уверены, что хотите удалить задачу под ID:', font = "Arial 11").place(x=15, rely=.1)
-		Label(self.root8, textvariable = nomer, font = "Arial 11").place(x = 340, rely=.1)
+		Label(self.root8, text = 'Вы уверены, что хотите удалить эту задачу?' ,
+						  font = "Arial 11").place(x=42, rely=.1)
 		btn_yes = tk.Button(self.root8,
 							 	text = "Да",
 							 	width = 3,
@@ -621,7 +639,7 @@ class Delete: # дочернее окно удаления задачи
 		self.root8.wait_window()
 
 ###########################################################################################################################################
-################################                            DateBase            #############################################################
+################################                            DateBase            ###########################################################
 ###########################################################################################################################################
         
 class DB:
@@ -630,12 +648,12 @@ class DB:
 		self.cur = self.connection.cursor()
 		self.cur.execute("""
 			CREATE TABLE IF NOT EXISTS TODO (
-  			№ INTEGER PRIMARY KEY AUTOINCREMENT,
   			Приоритет TEXT, 
   			Задача TEXT NOT NULL,
  			Статус TEXT ,
  			Дата_добавления DATE,
- 			Дата_окончания DATE
+ 			Дата_окончания DATE,
+ 			№ INTEGER PRIMARY KEY AUTOINCREMENT
 			)
 			""")
 
@@ -687,12 +705,12 @@ class DB:
 		self.cur.execute('''DROP TABLE TODO''')
 		self.cur.execute("""
 			CREATE TABLE IF NOT EXISTS TODO (
-  			№ INTEGER PRIMARY KEY AUTOINCREMENT,
   			Приоритет TEXT, 
   			Задача TEXT NOT NULL,
  			Статус TEXT ,
  			Дата_добавления DATE,
- 			Дата_окончания DATE
+ 			Дата_окончания DATE,
+ 			№ INTEGER PRIMARY KEY AUTOINCREMENT
 			)
 			""")
 		self.connection.commit()
@@ -705,6 +723,12 @@ class DB:
 		self.cur.execute('''DELETE FROM TODO WHERE № = ?''', (number))
 		self.connection.commit()
 		main_win.view_records()
+
+	def delete_perfomed_in_bd(self):
+	 	self.cur.execute('''DELETE FROM TODO WHERE Статус = "Выполнено"''')
+	 	self.connection.commit()
+	 	main_win.view_records()
+
 
 	def important_count(self):
 		self.cur.execute('''SELECT * FROM TODO WHERE Приоритет = "Важное"''').rowcount
