@@ -356,7 +356,7 @@ class Change: # дочернее окно изменения задачи
 
 		self.db = db
 
-
+		
 
 		self.root3 = tk.Toplevel(perent)
 		self.root3.title('Изменить')
