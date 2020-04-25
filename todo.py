@@ -17,7 +17,7 @@ class Main_win: #основное окно
 	def __init__(self):
 		self.root = tk.Tk()
 		self.root.title('ToDo List')
-		self.root.geometry("900x600")
+		self.root.geometry("930x600")
 		self.root.resizable(False, False)
 
 		x = (self.root.winfo_screenwidth() - self.root.winfo_reqwidth())/3.5
@@ -32,8 +32,8 @@ class Main_win: #основное окно
 		self.root.config(menu = self.menubar)
 
 
-		toolbar = tk.Frame(bg = 'White', width = 900, height = 100)
-		toolbar.place ( x =0, y = 0)
+		toolbar = tk.Frame(bg = 'White', width = 930, height = 100)
+		toolbar.pack(side = TOP)
 
 		self.tree = ttk.Treeview(self.root, columns = ('important','task','state','date_start','date_end','ID'),
 									   height = 100,
@@ -43,14 +43,14 @@ class Main_win: #основное окно
 		self.tree.insert('', 'end', text = 'your text', tags = ('oddrow',)) 
 		self.tree.tag_configure('oddrow', background='orange')
 		###
-		self.tree.place(x=0,y=100)
+		self.tree.pack(side = LEFT)
 
 		
 		self.tree.column('important', width = 70 , anchor = tk.CENTER)
 		self.tree.column('task', width = 510 , anchor = tk.CENTER)
 		self.tree.column('state', width = 130 , anchor = tk.CENTER)
-		self.tree.column('date_start', width = 100 , anchor = tk.CENTER)
-		self.tree.column('date_end', width = 100 , anchor = tk.CENTER)
+		self.tree.column('date_start', width = 110 , anchor = tk.CENTER)
+		self.tree.column('date_end', width = 110 , anchor = tk.CENTER)
 		self.tree.column('ID', width = 30 , anchor = tk.CENTER)
 
 		
@@ -61,6 +61,10 @@ class Main_win: #основное окно
 		self.tree.heading('date_end', text = 'Срок сдачи')
 		self.tree.heading('ID',text = 'ID')
 		self.tree.bind('<ButtonRelease - 1>', self.select_id)
+		scrollbar = Scrollbar(self.root)
+		scrollbar.place(x=915, y=100, height = 500)
+		scrollbar.config(command = self.tree.yview)
+		self.tree.config(yscrollcommand=scrollbar.set)
 
 		self.make_button(toolbar)
 
@@ -150,7 +154,7 @@ class Main_win: #основное окно
 		btn_make_performed.place 	(x = 445, y = 0)
 		btn_delete_performed.place 	(x = 555, y = 0)
 		btn_info.place             (x = 664, y = 0)
-		btn_clear_all.place			(x = 800, y = 0)
+		btn_clear_all.place			(x = 830, y = 0)
 
 
 	def run(self):
@@ -158,7 +162,18 @@ class Main_win: #основное окно
 
 	def records(self,problem,date_today, date_end, problem_str):
 		if(problem != ''):
-			self.db.execute_query(problem,date_today, date_end)
+			db.cur.execute('''SELECT Задача,Дата_окончания FROM TODO''')
+			rows = db.cur.fetchall()
+			i = 0 
+			for row in rows:
+				if (row[0] == problem) and (row[1] == str(date_end)):
+					i = i + 1 
+			
+			if i == 0:
+				self.db.execute_query(problem,date_today, date_end)
+			else:
+				mb.showinfo("Ошибка", "Вы уже создали такую задачу на этот день")
+					
 		else:
 			mb.showerror("Ошибка", "Поле 'Задача' не должно быть пустым!")
 			self.Entry_Error(problem_str)
@@ -178,6 +193,7 @@ class Main_win: #основное окно
 	def select_id(self, args):
 		item = self.tree.selection()[-1]
 		self.id_  = self.tree.item(item)['values'][-1]
+
 
 
 	
@@ -356,8 +372,6 @@ class Change: # дочернее окно изменения задачи
 
 		self.db = db
 
-		
-
 		self.root3 = tk.Toplevel(perent)
 		self.root3.title('Изменить')
 		self.root3.geometry("500x160")
@@ -389,7 +403,7 @@ class Change: # дочернее окно изменения задачи
 		self.focuse()
 
 
-	def records(self, problem,id_for_change ):
+	def records(self, problem,id_for_change):
 		if (problem != ''):
 			db.update_record(problem, id_for_change)
 			self.root3.destroy()
@@ -503,9 +517,11 @@ class About: # дочернее окно о приложении
 	def __init__(self, perent):
 		self.root5 = tk.Toplevel(perent)
 		self.root5.title('О приложении')
-		self.root5.geometry("900x900")
+		self.root5.geometry("930x900")
 		self.root5.resizable(False, False)
-
+		self.toolbar1 = PhotoImage(file='referencelogos/421.png')
+		self.table1 = PhotoImage(file='referencelogos/422.png')
+		
 		x = (self.root5.winfo_screenwidth() - self.root5.winfo_reqwidth()) / 3.5
 		y = (self.root5.winfo_screenheight() - self.root5.winfo_reqheight()) / 11
 		self.root5.wm_geometry("+%d+%d" % (x, y))
@@ -520,6 +536,9 @@ class About: # дочернее окно о приложении
 		Label(self.root5, text = "6. Удаление всех задач, отмеченных, как выполненные.").place(x=20, y = 190)
 		Label(self.root5, text = "Основное окно приложения содержит:", font = "Arial 11").place(x=20, y =220)
 		Label(self.root5, text = "1. Меню. (подробнее о меню - Справка -> Помощь)").place(x=20, y = 250)
+		Label(self.root5, image = self.toolbar1).place(x=0, y=270)
+		Label(self.root5, text = "2. Таблица задач").place(x=20, y = 375)
+		Label(self.root5, image = self.table1).place(x=0, y = 395)
 		self.focuse()
 
 	def focuse(self):
@@ -632,6 +651,7 @@ class Delete: # дочернее окно удаления задачи
 	def delete_and_destroy(self):
 		db.delete_problem(main_win.id_)
 		self.root8.destroy()
+		mb.showinfo("Удаление задачи","Задача удалена")
 
 	def focuse(self):
 		self.root8.grab_set()
