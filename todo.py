@@ -60,7 +60,7 @@ class Main_win: #основное окно
 		self.tree.heading('date_start', text = 'Дата Начала')
 		self.tree.heading('date_end', text = 'Срок сдачи')
 		self.tree.heading('ID',text = 'ID')
-		self.tree.bind('<ButtonRelease - 1>', self.select_id)
+		self.tree.bind('<ButtonRelease - 1>', self.select_id_and_date)
 		scrollbar = Scrollbar(self.root)
 		scrollbar.place(x=915, y=100, height = 500)
 		scrollbar.config(command = self.tree.yview)
@@ -190,10 +190,10 @@ class Main_win: #основное окно
 	def Entry_Error(self, problem_str):
 		problem_str.config(bg = 'pink')
 
-	def select_id(self, args):
-		item = self.tree.selection()[-1]
+	def select_id_and_date(self, args):
+		item = self.tree.selection()[0]
 		self.id_  = self.tree.item(item)['values'][-1]
-
+		self.date_end_2 = self.tree.item(item)['values'][4]
 
 
 	
@@ -201,7 +201,7 @@ class Main_win: #основное окно
 	def make_add(self):
 		Add(self.root)
 	def change_problem(self,):
-		Change(self.root, self.id_)
+		Change(self.root, self.id_, self.date_end_2)
 	def delete_problem(self):
 		Delete(self.root)
 	def clear(self): # очистить все
@@ -368,7 +368,7 @@ class Add: #дочернее окно добавления задачи
 ###########################################################################################################################################
 
 class Change: # дочернее окно изменения задачи
-	def __init__(self, perent, id_):
+	def __init__(self, perent, id_,date_end ):
 
 		self.db = db
 
@@ -380,7 +380,7 @@ class Change: # дочернее окно изменения задачи
 		x = (self.root3.winfo_screenwidth() - self.root3.winfo_reqwidth()) / 2.5
 		y = (self.root3.winfo_screenheight() - self.root3.winfo_reqheight()) / 1.9
 		self.root3.wm_geometry("+%d+%d" % (x, y))
-
+		id_for_change = id_
 
 		Label(self.root3, 
 			  text = "Введите новый текст в поле ниже:",				
@@ -393,7 +393,7 @@ class Change: # дочернее окно изменения задачи
 							 	text = "Изменить",
 							 	width = 13,
 							 	height = 1,
-							 	command = lambda:self.records(self.new_problem.get(), id_for_change),
+							 	command = lambda:self.records(self.new_problem.get(), id_for_change,date_end),
 							 	bg = "LightGrey",
 							 	bd=1)
 
@@ -403,13 +403,23 @@ class Change: # дочернее окно изменения задачи
 		self.focuse()
 
 
-	def records(self, problem,id_for_change):
-		if (problem != ''):
-			db.update_record(problem, id_for_change)
-			self.root3.destroy()
+	def records(self, problem,id_for_change, date_end):
+		if(problem != ''):
+			db.cur.execute('''SELECT Задача,Дата_окончания FROM TODO''')
+			rows = db.cur.fetchall()
+			i = 0 
+			for row in rows:
+				if (row[0] == problem) and (row[1] == str(date_end)):
+					i = i + 1 
+			
+			if i == 0:
+				db.update_record(problem, id_for_change)
+				self.root3.destroy()
+			else:
+				mb.showinfo("Ошибка", "Вы уже создали такую задачу на этот день")
+					
 		else:
 			mb.showerror("Ошибка", "Поле 'Задача' не должно быть пустым!")
-			#main_win.view_records()
 
 
 	def focuse(self):
