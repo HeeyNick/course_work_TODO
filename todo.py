@@ -416,7 +416,7 @@ class Change: # дочернее окно изменения задачи
 				db.update_record(problem, id_for_change)
 				self.root3.destroy()
 			else:
-				mb.showinfo("Ошибка", "Вы уже создали такую задачу на этот день")
+				mb.showerror("Ошибка", "Вы уже создали такую задачу на этот день.")
 					
 		else:
 			mb.showerror("Ошибка", "Поле 'Задача' не должно быть пустым!")
@@ -605,9 +605,10 @@ class DelPerf:
 		if i != 0:
 			db.delete_perfomed_in_bd()
 			self.root6.destroy()
+			mb.showinfo("Успешно!", "Все выполненные задачи удалены.")
 		else:
 			self.root6.destroy()
-			mb.showinfo("Ошибка", "Нет ни одной выполененной задачи((")
+			mb.showerror("Ошибка!", "Нет ни одной выполененной задачи.")
 
 
 		
