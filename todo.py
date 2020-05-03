@@ -105,7 +105,7 @@ class Main_win: #основное окно
 								width = 100,
 								height = 100,
 								image = self.important,
-								command = lambda:self.db.update_priority(self.id_),
+								command = lambda:self.db.update_priority(self.id_,self.priority_),
 								bd=3)
 
 		btn_delete = tk.Button(perent,
@@ -120,7 +120,7 @@ class Main_win: #основное окно
 								width = 100,
 								height = 100,
 								image = self.performed,
-								command = lambda:self.db.update_performed(self.id_),
+								command = lambda:self.db.update_performed(self.id_,self.status_),
 								bd=3)
 
 		btn_delete_performed = tk.Button(perent,
@@ -190,11 +190,12 @@ class Main_win: #основное окно
 	def Entry_Error(self, problem_str):
 		problem_str.config(bg = 'pink')
 
-	def select_id_and_date(self, args):
+	def select_value_in_tree(self, args):
 		item = self.tree.selection()[0]
 		self.id_  = self.tree.item(item)['values'][-1]
 		self.date_end_2 = self.tree.item(item)['values'][4]
-
+		self.priority_ = self.tree.item(item)['values'][0]
+		self.status_ = self.tree.item(item)['values'][2]
 
 	
 
@@ -701,20 +702,34 @@ class DB:
 
 		
 
-	def update_performed(self, id_):
-		status = 'Выполнено'
+	def update_performed(self, id_, status_):#Функция обновления статуса задачи как "выполнено"
 		number = id_
-		self.cur.execute('''UPDATE TODO
+		if(status_ == 'Выполнено'):
+			status  = 'Не выполнено'
+			self.cur.execute('''UPDATE TODO
+      			SET Статус = ?
+       			WHERE № = ?
+    			''', (status, number))
+		if(status_  == 'Не выполнено'):
+			status = 'Выполнено'
+			self.cur.execute('''UPDATE TODO
       			SET Статус = ?
        			WHERE № = ?
     			''', (status, number))
 		self.connection.commit()
 		main_win.view_records()
 
-	def update_priority(self, id_):
-		priority = 'Важное'
+	def update_priority(self, id_, priority_):#Функция установление приоритета задачи как "важное"
 		number = id_
-		self.cur.execute('''UPDATE TODO
+		if(priority_ == 'Нет'):
+			priority = 'Важное'
+			self.cur.execute('''UPDATE TODO
+      			SET Приоритет = ?
+       			WHERE № = ?
+    			''', (priority, number))
+		if(priority_ == 'Важное'):
+			priority = 'Нет'
+			self.cur.execute('''UPDATE TODO
       			SET Приоритет = ?
        			WHERE № = ?
     			''', (priority, number))
