@@ -60,7 +60,7 @@ class Main_win: #основное окно
 		self.tree.heading('date_start', text = 'Дата Начала')
 		self.tree.heading('date_end', text = 'Срок сдачи')
 		self.tree.heading('ID',text = 'ID')
-		self.tree.bind('<ButtonRelease - 1>', self.select_id_and_date)
+		self.tree.bind('<ButtonRelease - 1>', self.select_value_in_tree)
 		scrollbar = Scrollbar(self.root)
 		scrollbar.place(x=915, y=100, height = 500)
 		scrollbar.config(command = self.tree.yview)
