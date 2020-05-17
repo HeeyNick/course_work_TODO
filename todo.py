@@ -4,6 +4,7 @@ from tkinter import ttk
 import sqlite3 as lite
 import datetime
 from tkinter import messagebox as mb
+from random import *
 
 
 
@@ -147,13 +148,14 @@ class Main_win: #основное окно
 
 
 
+
 		btn_open_add.place 			(x = 5,   y = 0)
 		btn_change.place   			(x = 115, y = 0) 
 		btn_delete.place			(x = 225, y = 0)	
 		btn_important.place 		(x = 335, y = 0)
 		btn_make_performed.place 	(x = 445, y = 0)
 		btn_delete_performed.place 	(x = 555, y = 0)
-		btn_info.place             (x = 664, y = 0)
+		btn_info.place              (x = 664, y = 0)
 		btn_clear_all.place			(x = 830, y = 0)
 
 
@@ -182,9 +184,9 @@ class Main_win: #основное окно
 
 	def view_records(self):
 		self.db.cur.execute('''SELECT * FROM TODO ORDER BY Приоритет''')
-		
 		[self.tree.delete(i) for i in self.tree.get_children()]
 		[self.tree.insert('', 'end', values = row) for row in self.db.cur.fetchall()]
+		self.Expired_Tasks()
 
 
 	def Entry_Error(self, problem_str):
@@ -217,6 +219,17 @@ class Main_win: #основное окно
 		About(self.root)
 	def reference(self):
 		Reference(self.root)
+	def Expired_Tasks(self):
+		str_exp_tasks = 'Просрочено на'
+		datetime_today = datetime.date.today()
+		for child in self.tree.get_children():
+			date_end_3 = self.tree.item(child)['values'][4]
+			date_end_3 = date_end_3.split('-')
+			date_end_4 = datetime.date(int(date_end_3[0]), int(date_end_3[1]), int(date_end_3[2]))
+			if (date_end_4 < datetime_today):
+				date_exp = datetime_today - date_end_4
+				str_exp_tasks = 'Просрочено на ' + str(date_exp.days)
+				self.tree.set(child, "#3", str_exp_tasks)
 
 
 
@@ -803,6 +816,7 @@ class DB:
 		count_all = len(rows)
 		self.connection.commit()
 		return count_all
+
 
 if __name__ == "__main__":
 
