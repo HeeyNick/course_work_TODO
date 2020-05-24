@@ -5,7 +5,7 @@ import sqlite3 as lite
 import datetime
 from tkinter import messagebox as mb
 from random import *
-
+import db_todo
 
 
 
@@ -62,7 +62,7 @@ class Main_Win: #основное окно
 
 		self.make_button(toolbar)
 
-		self.db = db
+		self.db = db_todo.DB('to_do_list.db')
 		self.view_records()
 
 	def make_button(self, perent):
@@ -80,11 +80,11 @@ class Main_Win: #основное окно
 		btn_change = tk.Button(perent, text="Change", width=100, height=100, \
 		image=self.change, command=lambda: self.change_problem(), bd=3)
 		btn_important = tk.Button(perent, text="important", width=100, height=100, \
-		image=self.important, command=lambda: self.db.update_priority(self.id_, self.priority_), bd=3)
+		image=self.important, command=lambda: self.up_prior(self.id_, self.priority_), bd=3)
 		btn_delete = tk.Button(perent, text="delete", width=100, height=100, \
 		image=self.delete_pr, command=lambda: self.delete_problem(), bd=3)
 		btn_make_performed = tk.Button(perent, text="perfomed", width=100, height=100, \
-		image=self.performed, command=lambda: self.db.update_performed(self.id_, self.status_), bd=3)
+		image=self.performed, command=lambda: self.up_perf(self.id_, self.status_), bd=3)
 		btn_delete_performed = tk.Button(perent, text="del perfomed", width=100, height=100, \
 		image=self.delperf, command=lambda: self.delete_performed(), bd=3)
 		btn_info = tk.Button(perent, text="Информация", width=13, height=1, \
@@ -138,13 +138,14 @@ class Main_Win: #основное окно
 		self.date_end_2 = self.tree.item(item)['values'][4]
 		self.priority_ = self.tree.item(item)['values'][0]
 		self.status_ = self.tree.item(item)['values'][2]
+		self.problem_ = self.tree.item(item)['values'][1]
 
 
 
 	def make_add(self):
 		Add(self.root)
 	def change_problem(self):
-		Change(self.root, self.id_, self.date_end_2)
+		Change(self.root, self.id_, self.date_end_2, self.problem_)
 	def delete_problem(self):
 		Delete(self.root)
 	def clear(self): # очистить все
@@ -152,7 +153,7 @@ class Main_Win: #основное окно
 		задачи?\nДанная операция полностью удалит все задачи (выполненные и невыполненные) \
 		без возможности восстановления")
 		if answer == True:
-			db.clear_all_problems()
+			self.clr_all_prblm()
 	def delete_performed(self):
 		DelPerf(self.root)
 	def info(self):
@@ -170,8 +171,26 @@ class Main_Win: #основное окно
 			date_end_4 = datetime.date(int(date_end_3[0]), int(date_end_3[1]), int(date_end_3[2]))
 			if date_end_4 < datetime_today:
 				date_exp = datetime_today - date_end_4
-				str_exp_tasks = 'Просрочено на ' + str(date_exp.days)
+				str_exp_tasks = 'Просрочено на ' + str(date_exp.days) + ' д'
 				self.tree.set(child, "#3", str_exp_tasks)
+	def up_perf(self,id_,status_):
+		self.db.update_performed(id_, status_)
+		self.view_records()
+	def up_prior(self,id_,priority_):
+		self.db.update_priority(id_, priority_)
+		self.view_records()
+	def del_prblm(self,id_):
+		self.db.delete_problem(id_)
+		self.view_records()
+	def del_perf_bd(self):
+		self.db.delete_perfomed_in_bd()
+		self.view_records()
+	def clr_all_prblm(self):
+		self.db.clear_all_problems()
+		self.view_records()
+	def up_prblm(self,new_problem, id_):
+		self.db.update_record(new_problem, id_)
+		self.view_records()
 
 
 
@@ -293,7 +312,7 @@ class Add: #дочернее окно добавления задачи
 ##################################################################################
 
 class Change: # дочернее окно изменения задачи
-	def __init__(self, perent, id_, date_end):
+	def __init__(self, perent, id_, date_end, problem):
 
 		self.db = db
 
@@ -329,7 +348,7 @@ class Change: # дочернее окно изменения задачи
 					i = i + 1
 
 			if i == 0:
-				db.update_record(problem, id_for_change)
+				main_win.up_prblm(problem, id_for_change)
 				self.root3.destroy()
 			else:
 				mb.showerror("Ошибка", "Вы уже создали такую задачу на этот день.")
@@ -349,7 +368,7 @@ class Change: # дочернее окно изменения задачи
 
 class Info: # дочернее окно информации о задачах
 	def __init__(self, perent):
-		self.db = DB
+		self.db = db
 		self.root7 = tk.Toplevel(perent)
 		self.root7.title('Информация')
 		self.root7.geometry("250x220")
@@ -519,7 +538,7 @@ class DelPerf: #Дочернее окно DelPref
 			if row[0] == "Выполнено":
 				i += 1
 		if i != 0:
-			db.delete_perfomed_in_bd()
+			main_win.del_perf_bd()
 			self.root6.destroy()
 			mb.showinfo("Успешно!", "Все выполненные задачи удалены.")
 		else:
@@ -562,130 +581,16 @@ class Delete: # дочернее окно удаления задачи
 		self.focuse()
 
 	def delete_and_destroy(self):
-		db.delete_problem(main_win.id_)
+		main_win.del_prblm(main_win.id_)
 		self.root8.destroy()
 		mb.showinfo("Удаление задачи", "Задача удалена")
 
 	def focuse(self):
 		self.root8.grab_set()
 		self.root8.focus_set()
-		self.root8.wait_window()
-
-##################################################################################################
-################################                            DateBase            ##################
-##################################################################################################
-
-class DB:
-	def __init__(self):
-		self.connection = lite.connect("to_do_list.db")
-		self.cur = self.connection.cursor()
-		self.cur.execute("""
-			CREATE TABLE IF NOT EXISTS TODO (
-  			Приоритет TEXT, 
-  			Задача TEXT NOT NULL,
- 			Статус TEXT ,
- 			Дата_добавления DATE,
- 			Дата_окончания DATE,
- 			№ INTEGER PRIMARY KEY AUTOINCREMENT
-			)
-			""")
-
-		self.connection.commit()
-
-	def execute_query(self, problem, date_today, date_end):
-		priority = 'Нет'
-		status = 'Не выполнено'
-		self.cur.execute('''INSERT INTO TODO(Приоритет, Задача, Статус, Дата_добавления, Дата_окончания) \
-		VALUES (?, ?, ?, ?, ?)''', (priority, problem, status, date_today, date_end))
-		self.connection.commit()
-
-	def update_performed(self, id_, status_):#Функция обновления статуса задачи как "выполнено"
-		number = id_
-		if status_ == 'Выполнено':
-			status = 'Не выполнено'
-			self.cur.execute('''UPDATE TODO SET Статус = ? WHERE № = ?''', (status, number))
-		if status_ == 'Не выполнено':
-			status = 'Выполнено'
-			self.cur.execute('''UPDATE TODO SET Статус = ? WHERE № = ?''', (status, number))
-		self.connection.commit()
-		main_win.view_records()
-
-	def update_priority(self, id_, priority_):#Функция установление приоритета задачи как "важное"
-		number = id_
-		if priority_ == 'Нет':
-			priority = 'Важное'
-			self.cur.execute('''UPDATE TODO SET Приоритет = ? WHERE № = ?''', (priority, number))
-		if priority_ == 'Важное':
-			priority = 'Нет'
-			self.cur.execute('''UPDATE TODO SET Приоритет = ? WHERE № = ?''', (priority, number))
-		self.connection.commit()
-		main_win.view_records()
-
-	def update_record(self, new_problem, id_):
-		number = id_
-
-		self.cur.execute('''UPDATE TODO SET Задача = ? WHERE № = ?''', (new_problem, number))
-		self.connection.commit()
-		main_win.view_records()
-
-	def clear_all_problems(self):
-		self.cur.execute('''DROP TABLE TODO''')
-		self.cur.execute("""
-			CREATE TABLE IF NOT EXISTS TODO (
-  			Приоритет TEXT, 
-  			Задача TEXT NOT NULL,
- 			Статус TEXT,
- 			Дата_добавления DATE,
- 			Дата_окончания DATE,
- 			№ INTEGER PRIMARY KEY AUTOINCREMENT
-			)
-			""")
-		self.connection.commit()
-		main_win.view_records()
-		mb.showinfo("Готово", "Список задач очищен")
-
-	def delete_problem(self, id_):
-		number = id_
-		number = tuple([number])
-		self.cur.execute('''DELETE FROM TODO WHERE № = ?''', (number))
-		self.connection.commit()
-		main_win.view_records()
-
-	def delete_perfomed_in_bd(self):
-	 	self.cur.execute('''DELETE FROM TODO WHERE Статус = "Выполнено"''')
-	 	self.connection.commit()
-	 	main_win.view_records()
-
-	def important_count(self):
-		self.cur.execute('''SELECT * FROM TODO WHERE Приоритет = "Важное"''').rowcount
-		rows = self.cur.fetchall()
-		count_imp = len(rows)
-		self.connection.commit()
-		return count_imp
-
-	def pass_count(self):
-		self.cur.execute('''SELECT * FROM TODO WHERE Статус = "Выполнено"''').rowcount
-		rows = self.cur.fetchall()
-		count_perf = len(rows)
-		self.connection.commit()
-		return count_perf
-
-	def fail_count(self):
-		self.cur.execute('''SELECT * FROM TODO WHERE Статус = "Не выполнено"''').rowcount
-		rows = self.cur.fetchall()
-		count_fail = len(rows)
-		self.connection.commit()
-		return count_fail
-
-	def all_count(self):
-		self.cur.execute('''SELECT * FROM TODO''').rowcount
-		rows = self.cur.fetchall()
-		count_all = len(rows)
-		self.connection.commit()
-		return count_all
-
+		self.root8.wait_window()		
 
 if __name__ == "__main__":
-	db = DB()
+	db = db_todo.DB('to_do_list.db')
 	main_win = Main_Win()
 	main_win.run()
