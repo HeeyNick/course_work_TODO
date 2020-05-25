@@ -62,7 +62,13 @@ class Main_Win: #основное окно
 
 		self.make_button(toolbar)
 
-		self.db = db_todo.DB('to_do_list.db')
+		self.db = db
+		self.id_ = 0
+		self.date_end_2 = 0
+		self.problem_ = ''
+		self.priority_ = ''
+		self.status_ = ''
+		self.expired_tasks()
 		self.view_records()
 
 	def make_button(self, perent):
@@ -127,7 +133,6 @@ class Main_Win: #основное окно
 		self.db.cur.execute('''SELECT * FROM TODO ORDER BY Приоритет''')
 		[self.tree.delete(i) for i in self.tree.get_children()]
 		[self.tree.insert('', 'end', values=row) for row in self.db.cur.fetchall()]
-		self.expired_tasks()
 
 	def entry_error(self, problem_str):
 		problem_str.config(bg='pink')
@@ -150,8 +155,8 @@ class Main_Win: #основное окно
 		Delete(self.root)
 	def clear(self): # очистить все
 		answer = mb.askyesno("Очистить все", "Вы уверены, что хотите удалить все\
-		задачи?\nДанная операция полностью удалит все задачи (выполненные и невыполненные) \
-		без возможности восстановления")
+ задачи?\nДанная операция полностью удалит все задачи (выполненные и невыполненные)\
+ без возможности восстановления")
 		if answer == True:
 			self.clr_all_prblm()
 	def delete_performed(self):
@@ -163,31 +168,33 @@ class Main_Win: #основное окно
 	def reference(self):
 		Reference(self.root)
 	def expired_tasks(self):
-		str_exp_tasks = 'Просрочено на'
-		datetime_today = datetime.date.today()
-		for child in self.tree.get_children():
-			date_end_3 = self.tree.item(child)['values'][4]
-			date_end_3 = date_end_3.split('-')
-			date_end_4 = datetime.date(int(date_end_3[0]), int(date_end_3[1]), int(date_end_3[2]))
-			if date_end_4 < datetime_today:
-				date_exp = datetime_today - date_end_4
-				str_exp_tasks = 'Просрочено на ' + str(date_exp.days) + ' д'
-				self.tree.set(child, "#3", str_exp_tasks)
+		self.db.expired_tasks_bd()
+		self.view_records()
 	def up_perf(self,id_,status_):
-		self.db.update_performed(id_, status_)
-		self.view_records()
+		if id_ != 0:
+			self.db.update_performed(id_, status_)
+			self.view_records()
+			self.id_ = 0
+		else:
+			mb.showinfo("Изменение статуса", "Задача не выбрана")
 	def up_prior(self,id_,priority_):
-		self.db.update_priority(id_, priority_)
-		self.view_records()
+		if id_ != 0:
+			self.db.update_priority(id_, priority_)
+			self.view_records()
+			self.id_ = 0
+		else:
+			mb.showinfo("Изменение приоритета", "Задача не выбрана")
 	def del_prblm(self,id_):
 		self.db.delete_problem(id_)
 		self.view_records()
+		self.id_ = 0
 	def del_perf_bd(self):
 		self.db.delete_perfomed_in_bd()
 		self.view_records()
 	def clr_all_prblm(self):
 		self.db.clear_all_problems()
 		self.view_records()
+		mb.showinfo("Готово", "Список задач очищен")
 	def up_prblm(self,new_problem, id_):
 		self.db.update_record(new_problem, id_)
 		self.view_records()
@@ -216,7 +223,7 @@ class Add: #дочернее окно добавления задачи
 	def make_window(self, root2):
 		btn_add_problem = tk.Button(self.root2, text="Add", width=5, height=1, \
 		command=lambda: self.view.records(self.problem.get(), self.date_today, \
-		self.date_end, self.problem), bg="Green", bd=3)
+		self.date_end, self.problem), bg="LightGrey", bd=3)
 
 		btn_add_problem.place(x=100, y=100)
 
@@ -262,7 +269,7 @@ class Add: #дочернее окно добавления задачи
 		self.date_end = datetime.date(self.year.get(), self.month.get(), self.day.get())
 
 		btn_add_destroy = tk.Button(self.root2, text="Close", width=5, height=1, \
-		command=lambda: self.root2.destroy(), bg="Green", bd=3)
+		command=lambda: self.root2.destroy(), bg="LightGrey", bd=3)
 
 		btn_add_destroy.place(x=190, y=100)
 
@@ -313,29 +320,30 @@ class Add: #дочернее окно добавления задачи
 
 class Change: # дочернее окно изменения задачи
 	def __init__(self, perent, id_, date_end, problem):
+		if id_ != 0:
+			self.db = db
 
-		self.db = db
+			self.root3 = tk.Toplevel(perent)
+			self.root3.title('Изменить')
+			self.root3.geometry("500x160")
+			self.root3.resizable(False, False)
 
-		self.root3 = tk.Toplevel(perent)
-		self.root3.title('Изменить')
-		self.root3.geometry("500x160")
-		self.root3.resizable(False, False)
+			x = (self.root3.winfo_screenwidth() - self.root3.winfo_reqwidth()) / 2.5
+			y = (self.root3.winfo_screenheight() - self.root3.winfo_reqheight()) / 1.9
+			self.root3.wm_geometry("+%d+%d" % (x, y))
+			id_for_change = id_
+			Label(self.root3, text="Введите новый текст в поле ниже:", font="Arial 16").place(x=91, y=40)
+			self.new_problem = Entry(self.root3, width=60)
+			btn_change_problem = tk.Button(self.root3, text="Изменить", width=13, height=1, \
+			command=lambda: self.records(self.new_problem.get(), id_for_change, date_end), \
+			bg="LightGrey", bd=1)
 
-		x = (self.root3.winfo_screenwidth() - self.root3.winfo_reqwidth()) / 2.5
-		y = (self.root3.winfo_screenheight() - self.root3.winfo_reqheight()) / 1.9
-		self.root3.wm_geometry("+%d+%d" % (x, y))
-		id_for_change = id_
+			self.new_problem.place(x=70, y=70)
+			btn_change_problem.place(x=200, y=110)
 
-		Label(self.root3, text="Введите новый текст в поле ниже:", font="Arial 16").place(x=91, y=40)
-		self.new_problem = Entry(self.root3, width=60)
-		btn_change_problem = tk.Button(self.root3, text="Изменить", width=13, height=1, \
-		command=lambda: self.records(self.new_problem.get(), id_for_change, date_end), \
-		bg="LightGrey", bd=1)
-
-		self.new_problem.place(x=70, y=70)
-		btn_change_problem.place(x=200, y=100)
-
-		self.focuse()
+			self.focuse()
+		else:
+			mb.showinfo("Изменение задачи", "Задача не выбрана")
 
 
 	def records(self, problem, id_for_change, date_end):
@@ -558,27 +566,29 @@ class DelPerf: #Дочернее окно DelPref
 
 class Delete: # дочернее окно удаления задачи
 	def __init__(self, perent):
-		self.root8 = tk.Toplevel(perent)
-		self.root8.title('Удалить')
-		self.root8.geometry("400x100")
-		self.root8.resizable(False, False)
-		self.main_win = main_win
-		self.db = db
+		if main_win.id_ != 0:
+			self.root8 = tk.Toplevel(perent)
+			self.root8.title('Удалить')
+			self.root8.geometry("400x100")
+			self.root8.resizable(False, False)
+			self.main_win = main_win
+			self.db = db
 
-		x = (self.root8.winfo_screenwidth() - self.root8.winfo_reqwidth()) / 2.25
-		y = (self.root8.winfo_screenheight() - self.root8.winfo_reqheight()) / 1.9
-		self.root8.wm_geometry("+%d+%d" % (x, y))
+			x = (self.root8.winfo_screenwidth() - self.root8.winfo_reqwidth()) / 2.25
+			y = (self.root8.winfo_screenheight() - self.root8.winfo_reqheight()) / 1.9
+			self.root8.wm_geometry("+%d+%d" % (x, y))
 
-
-		Label(self.root8, text='Вы уверены, что хотите удалить эту задачу?', \
-		font="Arial 11").place(x=42, rely=.1)
-		btn_yes = tk.Button(self.root8, text="Да", width=3, height=1, \
-		command=lambda: self.delete_and_destroy(), bg="LightGrey", bd=1)
-		btn_yes.place(relx=.3, rely=.5)
-		btn_no = tk.Button(self.root8, text="Нет", width=3, height=1, \
-		command=lambda: self.root8.destroy(), bg="LightGrey", bd=1)
-		btn_no.place(relx=.6, rely=.5)
-		self.focuse()
+			Label(self.root8, text='Вы уверены, что хотите удалить эту задачу?', \
+			font="Arial 11").place(x=42, rely=.1)
+			btn_yes = tk.Button(self.root8, text="Да", width=3, height=1, \
+			command=lambda: self.delete_and_destroy(), bg="LightGrey", bd=1)
+			btn_yes.place(relx=.3, rely=.5)
+			btn_no = tk.Button(self.root8, text="Нет", width=3, height=1, \
+			command=lambda: self.root8.destroy(), bg="LightGrey", bd=1)
+			btn_no.place(relx=.6, rely=.5)
+			self.focuse()
+		else:
+			mb.showinfo("Удаление задачи", "Задача не выбрана")
 
 	def delete_and_destroy(self):
 		main_win.del_prblm(main_win.id_)
