@@ -1,5 +1,5 @@
 import sqlite3 as lite
-from tkinter import messagebox as mb
+
 
 class DB:
 	def __init__(self, name_db):
@@ -66,7 +66,6 @@ class DB:
 			)
 			""")
 		self.connection.commit()
-		mb.showinfo("Готово", "Список задач очищен")
 
 	def delete_problem(self, id_):
 		number = id_
