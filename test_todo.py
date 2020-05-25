@@ -1,5 +1,5 @@
 import unittest
-from todo import *
+import db_todo
 import datetime
 import sqlite3 as lite
 
@@ -56,6 +56,16 @@ class test_db(unittest.TestCase):
 		rows = self.cur.fetchall()
 		self.assertEqual(rows, [('Нет','Восемь','Не выполнено',today_test_str,'2020-12-04',3)])
 
+	def test_bcount_fail(self):
+		self.create_db()
+		rows = self.db.fail_count()
+		self.assertEqual(rows, 3)
+
+	def test_bcount_all(self):
+		self.create_db()
+		rows = self.db.all_count()
+		self.assertEqual(rows, 3)
+
 	def test_cupdate_perf_task(self):
 		self.create_db()
 		status_ = 'Не выполнено'
@@ -66,6 +76,62 @@ class test_db(unittest.TestCase):
 		self.cur.execute('''SELECT * FROM TODO WHERE №= 2 ''')
 		rows = self.cur.fetchall()
 		self.assertEqual(rows, [('Нет','Семь','Выполнено',today_test_str,'2020-12-04',2)])
+
+	def test_dcount_pass(self):
+		self.create_db()
+		rows = self.db.pass_count()
+		self.assertEqual(rows, 1)
+
+	def test_eupdate_priora(self):
+		self.create_db()
+		prior_ = 'Нет'
+		id_ = 1
+		date_today_test = datetime.date.today()
+		today_test_str = str(date_today_test)
+		self.db.update_priority(id_, prior_)
+		self.cur.execute('''SELECT * FROM TODO WHERE №= 1 ''')
+		rows = self.cur.fetchall()
+		self.assertEqual(rows, [('Важное','Трои','Не выполнено',today_test_str,'2020-12-04',1)])
+
+	def test_fcount_important(self):
+		self.create_db()
+		rows = self.db.important_count()
+		self.assertEqual(rows, 1)
+
+	def test_gupdate_priora_2(self):
+		self.create_db()
+		prior_ = 'Важное'
+		id_ = 1
+		date_today_test = datetime.date.today()
+		today_test_str = str(date_today_test)		
+		self.db.update_priority(id_, prior_)
+		self.cur.execute('''SELECT * FROM TODO WHERE №= 1 ''')
+		rows = self.cur.fetchall()
+		
+		self.assertEqual(rows, [('Нет','Трои','Не выполнено',today_test_str,'2020-12-04',1)])
+
+	def test_hupdate_record(self):
+		self.create_db()
+		id_ = 1
+		new_problem = 'Четыре'
+		date_today_test = datetime.date.today()
+		today_test_str = str(date_today_test)
+		self.db.update_record(new_problem, id_)
+		self.cur.execute('''SELECT * FROM TODO WHERE №= 1 ''')
+		rows = self.cur.fetchall()
+		
+		self.assertEqual(rows, [('Нет','Четыре','Не выполнено',today_test_str,'2020-12-04',1)])
+
+	def test_iupdate_record_2(self):
+		self.create_db()
+		id_ = 1
+		new_problem = 'Трои'
+		date_today_test = datetime.date.today()
+		today_test_str = str(date_today_test)
+		self.db.update_record(new_problem, id_)
+		self.cur.execute('''SELECT * FROM TODO WHERE №= 1 ''')
+		rows = self.cur.fetchall()
+		self.assertEqual(rows, [('Нет','Трои','Не выполнено',today_test_str,'2020-12-04',1)])
 
 	def test_jdelete_perf(self):
 		self.create_db()
@@ -101,7 +167,6 @@ class test_db(unittest.TestCase):
 				exp_date = datetime_today - date_end_test
 				str_exp_tasks = 'Просрочено на ' + str(exp_date.days) + ' д'
 				self.assertEqual(id_[0], (str_exp_tasks))
-
 
 if __name__ == "__main__":
 	unittest.main()
