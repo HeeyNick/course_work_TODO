@@ -3,4 +3,4 @@ python:
   - "3.8.2"
 
 script:
-  - python -m unittest test_todo.py
+  - python test_todo.py
