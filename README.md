@@ -1,5 +1,7 @@
 # TODO List 
 ---
+[![Build Status](https://travis-ci.org/HeeyNick/course_work_TODO.svg?branch=test_db)](https://travis-ci.org/github/HeeyNick/course_work_TODO)
+---
 ### Курсовой Проект по предмету "Технологии разработки программного обеспечения"
 ---
 ### Тема проекта: **Todo List** 
