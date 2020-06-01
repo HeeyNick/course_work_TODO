@@ -170,21 +170,21 @@ class Main_Win: #основное окно
 	def expired_tasks(self):
 		self.db.expired_tasks_bd()
 		self.view_records()
-	def up_perf(self,id_,status_):
+	def up_perf(self, id_, status_):
 		if id_ != 0:
 			self.db.update_performed(id_, status_)
 			self.view_records()
 			self.id_ = 0
 		else:
 			mb.showinfo("Изменение статуса", "Задача не выбрана")
-	def up_prior(self,id_,priority_):
+	def up_prior(self, id_, priority_):
 		if id_ != 0:
 			self.db.update_priority(id_, priority_)
 			self.view_records()
 			self.id_ = 0
 		else:
 			mb.showinfo("Изменение приоритета", "Задача не выбрана")
-	def del_prblm(self,id_):
+	def del_prblm(self, id_):
 		self.db.delete_problem(id_)
 		self.view_records()
 		self.id_ = 0
@@ -195,7 +195,7 @@ class Main_Win: #основное окно
 		self.db.clear_all_problems()
 		self.view_records()
 		mb.showinfo("Готово", "Список задач очищен")
-	def up_prblm(self,new_problem, id_):
+	def up_prblm(self, new_problem, id_):
 		self.db.update_record(new_problem, id_)
 		self.view_records()
 

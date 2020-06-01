@@ -197,3 +197,4 @@ class test_db_clr_all(unittest.TestCase):
 
 if __name__ == "__main__":
 	unittest.main()
+	
