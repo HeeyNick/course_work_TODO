@@ -1,7 +1,6 @@
 from tkinter import *
 import tkinter as tk
 from tkinter import ttk
-import sqlite3 as lite
 import datetime
 from tkinter import messagebox as mb
 from random import *
@@ -598,7 +597,7 @@ class Delete: # дочернее окно удаления задачи
 	def focuse(self):
 		self.root8.grab_set()
 		self.root8.focus_set()
-		self.root8.wait_window()		
+		self.root8.wait_window()
 
 if __name__ == "__main__":
 	db = db_todo.DB('to_do_list.db')
