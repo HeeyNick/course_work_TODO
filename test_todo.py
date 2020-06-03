@@ -269,7 +269,7 @@ class TestInfo(unittest.TestCase):
 
 	def test_all_count(self):
 		rows = self.func_db.db.all_count()
-		self.assertEqual(rows, 3)	
+		self.assertEqual(rows, 3)
 
 	@classmethod
 	def tearDownClass(cls):
