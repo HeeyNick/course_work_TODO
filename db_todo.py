@@ -23,7 +23,8 @@ class DB:
 
 	def execute_query(self, problem, date_today, date_end):
 		self.cur.execute('''INSERT INTO TODO(Приоритет, Задача, Статус, Дата_добавления, Дата_окончания) \
-		VALUES (?, ?, ?, ?, ?)''', (self.priority.normal, problem, self.status.unperf, date_today, date_end))
+		VALUES (?, ?, ?, ?, ?)''', (self.priority.normal, problem, \
+		self.status.unperf, date_today, date_end))
 		self.connection.commit()
 
 	def update_performed(self, id_, status_):#Функция обновления статуса задачи как "выполнено"
