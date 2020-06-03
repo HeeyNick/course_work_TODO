@@ -295,7 +295,7 @@ class Add: #дочернее окно добавления задачи
 		self.year.set(self.current_date.year)
 
 	def input_date_end(self):
- 		return datetime.date(self.year.get(), self.month.get(), self.day.get())
+		return datetime.date(self.year.get(), self.month.get(), self.day.get())
 
 	def validate(self, *args):
 		self.problem.config(bg='white')

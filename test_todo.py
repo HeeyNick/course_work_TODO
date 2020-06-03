@@ -1,6 +1,5 @@
 import unittest
 import datetime
-import sqlite3 as lite
 import db_todo
 
 class FuncDB:
