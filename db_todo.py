@@ -77,7 +77,7 @@ class DB:
 
 
 	def important_count(self):
-		priority_yes = tuple([self.priority.managed])
+		priority_yes = tuple([self.priority.major])
 		self.cur.execute('''SELECT * FROM TODO WHERE Приоритет = ?''', (priority_yes)).rowcount
 		rows = self.cur.fetchall()
 		count_imp = len(rows)

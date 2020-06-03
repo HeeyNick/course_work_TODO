@@ -11,7 +11,8 @@ class FuncDB:
 
 	def insert_db(self, priority, problem, status, date_end):
 		self.date_today = datetime.date.today()
-		self.db.cur.execute('''INSERT INTO TODO(Приоритет, Задача, Статус, Дата_добавления, Дата_окончания) \
+		self.db.cur.execute('''INSERT INTO TODO(Приоритет, Задача, Статус, \
+		Дата_добавления, Дата_окончания) \
 		VALUES (?, ?, ?, ?, ?)''', (priority, problem, status, self.date_today, date_end))
 
 		self.db.connection.commit()
