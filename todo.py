@@ -265,7 +265,7 @@ class Add: #дочернее окно добавления задачи
 		self.year_spin.place(x=195, y=65)
 		Label(self.root2, text='Год').place(x=170, y=65)
 
-		self.date_end = datetime.date(self.year.get(), self.month.get(), self.day.get())
+		self.current_date = datetime.date(self.year.get(), self.month.get(), self.day.get())
 
 		btn_add_destroy = tk.Button(self.root2, text="Close", width=5, height=1, \
 		command=lambda: self.root2.destroy(), bg="LightGrey", bd=3)
