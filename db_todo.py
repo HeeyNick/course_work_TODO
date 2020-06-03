@@ -18,37 +18,33 @@ class DB:
 
 		self.connection.commit()
 
+		self.status = TaskStatus()
+		self.priority = TaskPriority()
+
 	def execute_query(self, problem, date_today, date_end):
-		priority = 'Нет'
-		status = 'Не выполнено'
 		self.cur.execute('''INSERT INTO TODO(Приоритет, Задача, Статус, Дата_добавления, Дата_окончания) \
-		VALUES (?, ?, ?, ?, ?)''', (priority, problem, status, date_today, date_end))
+		VALUES (?, ?, ?, ?, ?)''', (self.priority.normal, problem, self.status.unperf, date_today, date_end))
 		self.connection.commit()
 
 	def update_performed(self, id_, status_):#Функция обновления статуса задачи как "выполнено"
 		number = id_
-		if status_ == 'Выполнено':
-			status = 'Не выполнено'
-			self.cur.execute('''UPDATE TODO SET Статус = ? WHERE № = ?''', (status, number))
-		if status_ == 'Не выполнено':
-			status = 'Выполнено'
-			self.cur.execute('''UPDATE TODO SET Статус = ? WHERE № = ?''', (status, number))
+		if status_ == self.status.perf:
+			self.cur.execute('''UPDATE TODO SET Статус = ? WHERE № = ?''', (self.status.unperf, number))
+		if status_ == self.status.unperf:
+			self.cur.execute('''UPDATE TODO SET Статус = ? WHERE № = ?''', (self.status.perf, number))
 		self.connection.commit()
 
 	def update_priority(self, id_, priority_):#Функция установление приоритета задачи как "важное"
 		number = id_
-		if priority_ == 'Нет':
-			priority = 'Важное'
-			self.cur.execute('''UPDATE TODO SET Приоритет = ? WHERE № = ?''', (priority, number))
-		if priority_ == 'Важное':
-			priority = 'Нет'
-			self.cur.execute('''UPDATE TODO SET Приоритет = ? WHERE № = ?''', (priority, number))
+		if priority_ == self.priority.normal:
+			self.cur.execute('''UPDATE TODO SET Приоритет = ? WHERE № = ?''', (self.priority.major, number))
+		if priority_ == self.priority.major:
+			self.cur.execute('''UPDATE TODO SET Приоритет = ? WHERE № = ?''', (self.priority.normal, number))
 		self.connection.commit()
 
 
 	def update_record(self, new_problem, id_):
 		number = id_
-
 		self.cur.execute('''UPDATE TODO SET Задача = ? WHERE № = ?''', (new_problem, number))
 		self.connection.commit()
 
@@ -59,7 +55,7 @@ class DB:
 			CREATE TABLE IF NOT EXISTS TODO (
   			Приоритет TEXT, 
   			Задача TEXT NOT NULL,
- 			Статус TEXT,
+ 			Статус TEXT,		
  			Дата_добавления DATE,
  			Дата_окончания DATE,
  			№ INTEGER PRIMARY KEY AUTOINCREMENT
@@ -75,26 +71,30 @@ class DB:
 
 
 	def delete_perfomed_in_bd(self):
-	 	self.cur.execute('''DELETE FROM TODO WHERE Статус = "Выполнено"''')
-	 	self.connection.commit()
+		perf = tuple([self.status.perf])
+		self.cur.execute('''DELETE FROM TODO WHERE Статус = ?''', (perf))
+		self.connection.commit()
 
 
 	def important_count(self):
-		self.cur.execute('''SELECT * FROM TODO WHERE Приоритет = "Важное"''').rowcount
+		priority_yes = tuple([self.priority.managed])
+		self.cur.execute('''SELECT * FROM TODO WHERE Приоритет = ?''', (priority_yes)).rowcount
 		rows = self.cur.fetchall()
 		count_imp = len(rows)
 		self.connection.commit()
 		return count_imp
 
 	def pass_count(self):
-		self.cur.execute('''SELECT * FROM TODO WHERE Статус = "Выполнено"''').rowcount
+		perf = tuple([self.status.perf])
+		self.cur.execute('''SELECT * FROM TODO WHERE Статус = ?''', (perf)).rowcount
 		rows = self.cur.fetchall()
 		count_perf = len(rows)
 		self.connection.commit()
 		return count_perf
 
 	def fail_count(self):
-		self.cur.execute('''SELECT * FROM TODO WHERE Статус = "Не выполнено"''').rowcount
+		unperf = tuple([self.status.unperf])
+		self.cur.execute('''SELECT * FROM TODO WHERE Статус = ?''', (unperf)).rowcount
 		rows = self.cur.fetchall()
 		count_fail = len(rows)
 		self.connection.commit()
@@ -121,3 +121,12 @@ class DB:
 				str_exp_tasks = 'Просрочено на ' + str(date_exp.days) + ' д'
 				self.cur.execute('''UPDATE TODO SET Статус = ? WHERE № = ?''', (str_exp_tasks, rows[1]))
 				self.connection.commit()
+
+
+class TaskStatus:
+	perf = "Выполнено"
+	unperf = 'Не выполнено'
+
+class TaskPriority:
+	major = 'Важное'
+	normal = 'Нет'
