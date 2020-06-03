@@ -239,5 +239,43 @@ class TestClearAll(unittest.TestCase):
 	def tearDownClass(cls):
 		cls.func_db.delete_db()
 
+class TestInfo(unittest.TestCase):
+	@classmethod
+	def setUpClass(cls):
+		cls.func_db = FuncDB()
+		cls.func_db.create_db()
+		problem_insert_nine = 'Девять'
+		problem_insert_eight = 'Восемь'
+		problem_insert_six = 'Шесть'
+		date_end_insert = datetime.date(2020, 12, 4)
+		cls.func_db.insert_db(cls.func_db.priority.normal, problem_insert_nine, \
+		cls.func_db.status.unperf, date_end_insert)
+		cls.func_db.insert_db(cls.func_db.priority.major, problem_insert_eight, \
+		cls.func_db.status.perf, date_end_insert)
+		cls.func_db.insert_db(cls.func_db.priority.major, problem_insert_six, \
+		cls.func_db.status.perf, date_end_insert)
+
+	def test_pass_count(self):
+		rows = self.func_db.db.pass_count()
+		self.assertEqual(rows, 2)
+
+	def test_important_count(self):
+		rows = self.func_db.db.important_count()
+		self.assertEqual(rows, 2)
+
+	def test_fail_count(self):
+		rows = self.func_db.db.fail_count()
+		self.assertEqual(rows, 1)
+
+	def test_all_count(self):
+		rows = self.func_db.db.all_count()
+		self.assertEqual(rows, 3)	
+
+	@classmethod
+	def tearDownClass(cls):
+		cls.func_db.delete_db()
+
+
+
 if __name__ == "__main__":
 	unittest.main()
