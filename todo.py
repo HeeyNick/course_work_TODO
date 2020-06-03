@@ -222,7 +222,7 @@ class Add: #дочернее окно добавления задачи
 	def make_window(self, root2):
 		btn_add_problem = tk.Button(self.root2, text="Add", width=5, height=1, \
 		command=lambda: self.view.records(self.problem.get(), self.date_today, \
-		self.date_end, self.problem), bg="LightGrey", bd=3)
+		self.current_date, self.problem), bg="LightGrey", bd=3)
 
 		btn_add_problem.place(x=100, y=100)
 
@@ -272,8 +272,6 @@ class Add: #дочернее окно добавления задачи
 
 		btn_add_destroy.place(x=190, y=100)
 
-		self.input_date_end()
-
 		self.focuse()
 
 
@@ -283,30 +281,13 @@ class Add: #дочернее окно добавления задачи
 		self.root2.wait_window()
 
 	def date_less_today(self):
-		self.year_t = int(self.year.get())
-		self.month_t = int(self.month.get())
-		self.day_t = int(self.day.get())
-		self.change_spin()
-
-	def change_spin(self):
-		if self.year_t < self.date_today.year or self.year_t == self.date_today.year:
-			if self.month_t < self.date_today.month or self.month_t == self.date_today.month:
-				if self.day_t < self.date_today.day:
-					self.day_spin.config(from_=self.date_today.day)
-				self.month_spin.config(from_=self.date_today.month)
-			self.year_spin.config(from_=self.date_today.year)
-
-		if self.year_t == self.date_today.year and self.month_t > self.date_today.month:
-			self.day_spin.config(from_=1)
-
-		if self.year_t > self.date_today.year:
-			self.month_spin.config(from_=1)
-			self.day_spin.config(from_=1)
-
-		self.input_date_end()
+		self.current_date = max(self.input_date_end(), self.date_today)
+		self.day.set(self.current_date.day)
+		self.month.set(self.current_date.month)
+		self.year.set(self.current_date.year)
 
 	def input_date_end(self):
-		self.date_end = datetime.date(self.year.get(), self.month.get(), self.day.get())
+ 		return datetime.date(self.year.get(), self.month.get(), self.day.get())
 
 	def validate(self, *args):
 		self.problem.config(bg='white')
@@ -542,7 +523,7 @@ class DelPerf: #Дочернее окно DelPref
 		db.cur.execute('''SELECT Статус FROM TODO''')
 		rows = db.cur.fetchall()
 		for row in rows:
-			if row[0] == "Выполнено":
+			if row[0] == self.db.status.perf:
 				i += 1
 		if i != 0:
 			main_win.del_perf_bd()
