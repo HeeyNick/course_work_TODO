@@ -1,19 +1,16 @@
-from tkinter import *
 import tkinter as tk
+from tkinter import PhotoImage, Entry, Label, Spinbox
+from tkinter import messagebox as mb
 from tkinter import ttk
 import datetime
-from tkinter import messagebox as mb
-from random import *
 import db_todo
 
 
-
-
 ################################################################################################
-################################                                  Main                       ###
+# ###############################                                  Main                       ###
 ################################################################################################
 
-class Main_Win: #основное окно
+class MainWin:  # основное окно
 	def __init__(self):
 		self.root = tk.Tk()
 		self.root.title('ToDo List')
@@ -24,22 +21,22 @@ class Main_Win: #основное окно
 		y = (self.root.winfo_screenheight() - self.root.winfo_reqheight()) / 3.7
 		self.root.wm_geometry("+%d+%d" % (x, y))
 
-		self.menubar = Menu(self.root)
-		help_ = Menu(self.menubar, tearoff=0)
+		self.menubar = tk.Menu(self.root)
+		help_ = tk.Menu(self.menubar, tearoff=0)
 		self.menubar.add_cascade(label='Справка', menu=help_)
 		help_.add_command(label='Помощь', command=self.reference)
 		help_.add_command(label='О приложении', command=self.about)
 		self.root.config(menu=self.menubar)
 
 		toolbar = tk.Frame(bg='White', width=930, height=100)
-		toolbar.pack(side=TOP)
+		toolbar.pack(side=tk.TOP)
 
 		self.tree = ttk.Treeview(self.root, \
 		columns=('important', 'task', 'state', 'date_start', 'date_end', 'ID'), \
 		height=100, show='headings', selectmode="browse")
 		self.tree.insert('', 'end', text='your text', tags=('oddrow',))
 		self.tree.tag_configure('oddrow', background='orange')
-		self.tree.pack(side=LEFT)
+		self.tree.pack(side=tk.LEFT)
 		self.tree.column('important', width=70, anchor=tk.CENTER)
 		self.tree.column('task', width=510, anchor=tk.CENTER)
 		self.tree.column('state', width=130, anchor=tk.CENTER)
@@ -54,7 +51,7 @@ class Main_Win: #основное окно
 		self.tree.heading('date_end', text='Срок сдачи')
 		self.tree.heading('ID', text='ID')
 		self.tree.bind('<ButtonRelease - 1>', self.select_value_in_tree)
-		scrollbar = Scrollbar(self.root)
+		scrollbar = tk.Scrollbar(self.root)
 		scrollbar.place(x=915, y=100, height=500)
 		scrollbar.config(command=self.tree.yview)
 		self.tree.config(yscrollcommand=scrollbar.set)
@@ -72,30 +69,30 @@ class Main_Win: #основное окно
 
 	def make_button(self, perent):
 
-		self.add = PhotoImage(file='mainlogos/3.png')
-		self.change = PhotoImage(file='mainlogos/6.png')
-		self.important = PhotoImage(file='mainlogos/4.png')
-		self.delete_pr = PhotoImage(file='mainlogos/2.png')
-		self.performed = PhotoImage(file='mainlogos/1.png')
-		self.delperf = PhotoImage(file='mainlogos/5.png')
+		self.add = tk.PhotoImage(file='mainlogos/3.png')
+		self.change = tk.PhotoImage(file='mainlogos/6.png')
+		self.important = tk.PhotoImage(file='mainlogos/4.png')
+		self.delete_pr = tk.PhotoImage(file='mainlogos/2.png')
+		self.performed = tk.PhotoImage(file='mainlogos/1.png')
+		self.delperf = tk.PhotoImage(file='mainlogos/5.png')
 
-		btn_open_add = tk.Button(perent, text="Add Task", width=100, height=100,\
-		image=self.add, bd=3, command=lambda: self.make_add())
+		btn_open_add = tk.Button(perent, text="Add Task", width=100, height=100, image=self.add,\
+		bd=3, command=self.make_add)
 
-		btn_change = tk.Button(perent, text="Change", width=100, height=100, \
-		image=self.change, command=lambda: self.change_problem(), bd=3)
+		btn_change = tk.Button(perent, text="Change", width=100, height=100,\
+		image=self.change, command=self.change_problem, bd=3)
 		btn_important = tk.Button(perent, text="important", width=100, height=100, \
 		image=self.important, command=lambda: self.up_prior(self.id_, self.priority_), bd=3)
 		btn_delete = tk.Button(perent, text="delete", width=100, height=100, \
-		image=self.delete_pr, command=lambda: self.delete_problem(), bd=3)
+		image=self.delete_pr, command=self.delete_problem, bd=3)
 		btn_make_performed = tk.Button(perent, text="perfomed", width=100, height=100, \
 		image=self.performed, command=lambda: self.up_perf(self.id_, self.status_), bd=3)
 		btn_delete_performed = tk.Button(perent, text="del perfomed", width=100, height=100, \
-		image=self.delperf, command=lambda: self.delete_performed(), bd=3)
+		image=self.delperf, command=self.delete_performed, bd=3)
 		btn_info = tk.Button(perent, text="Информация", width=13, height=1, \
-		command=lambda: self.info(), bg="LightGrey", bd=2)
+		command=self.info, bg="LightGrey", bd=2)
 		btn_clear_all = tk.Button(perent, text="Очистить всё", width=13, height=1, \
-		command=lambda: self.clear(), bg="LightGrey", bd=2)
+		command=self.clear, bg="LightGrey", bd=2)
 
 		btn_open_add.place(x=5, y=0)
 		btn_change.place(x=115, y=0)
@@ -130,7 +127,7 @@ class Main_Win: #основное окно
 
 	def view_records(self):
 		self.db.cur.execute('''SELECT * FROM TODO ORDER BY Приоритет''')
-		[self.tree.delete(i) for i in self.tree.get_children()]
+		[self.tree.delete(i) for i in self.tree.get_children()] # delete from pylint && change
 		[self.tree.insert('', 'end', values=row) for row in self.db.cur.fetchall()]
 
 	def entry_error(self, problem_str):
@@ -144,31 +141,38 @@ class Main_Win: #основное окно
 		self.status_ = self.tree.item(item)['values'][2]
 		self.problem_ = self.tree.item(item)['values'][1]
 
-
-
 	def make_add(self):
 		Add(self.root)
+
 	def change_problem(self):
-		Change(self.root, self.id_, self.date_end_2, self.problem_)
+		Change(self.root, self.id_, self.date_end_2)
+
 	def delete_problem(self):
 		Delete(self.root)
+
 	def clear(self): # очистить все
 		answer = mb.askyesno("Очистить все", "Вы уверены, что хотите удалить все\
  задачи?\nДанная операция полностью удалит все задачи (выполненные и невыполненные)\
  без возможности восстановления")
-		if answer == True:
+		if answer:
 			self.clr_all_prblm()
+
 	def delete_performed(self):
 		DelPerf(self.root)
+
 	def info(self):
 		Info(self.root)
+
 	def about(self):
 		About(self.root)
+
 	def reference(self):
 		Reference(self.root)
+
 	def expired_tasks(self):
 		self.db.expired_tasks_bd()
 		self.view_records()
+
 	def up_perf(self, id_, status_):
 		if id_ != 0:
 			self.db.update_performed(id_, status_)
@@ -176,6 +180,7 @@ class Main_Win: #основное окно
 			self.id_ = 0
 		else:
 			mb.showinfo("Изменение статуса", "Задача не выбрана")
+
 	def up_prior(self, id_, priority_):
 		if id_ != 0:
 			self.db.update_priority(id_, priority_)
@@ -183,17 +188,21 @@ class Main_Win: #основное окно
 			self.id_ = 0
 		else:
 			mb.showinfo("Изменение приоритета", "Задача не выбрана")
+
 	def del_prblm(self, id_):
 		self.db.delete_problem(id_)
 		self.view_records()
 		self.id_ = 0
+
 	def del_perf_bd(self):
 		self.db.delete_perfomed_in_bd()
 		self.view_records()
+
 	def clr_all_prblm(self):
 		self.db.clear_all_problems()
 		self.view_records()
 		mb.showinfo("Готово", "Список задач очищен")
+
 	def up_prblm(self, new_problem, id_):
 		self.db.update_record(new_problem, id_)
 		self.view_records()
@@ -268,12 +277,11 @@ class Add: #дочернее окно добавления задачи
 		self.current_date = datetime.date(self.year.get(), self.month.get(), self.day.get())
 
 		btn_add_destroy = tk.Button(self.root2, text="Close", width=5, height=1, \
-		command=lambda: self.root2.destroy(), bg="LightGrey", bd=3)
+		command=self.root2.destroy, bg="LightGrey", bd=3)
 
 		btn_add_destroy.place(x=190, y=100)
 
 		self.focuse()
-
 
 	def focuse(self):
 		self.root2.grab_set()
@@ -299,7 +307,7 @@ class Add: #дочернее окно добавления задачи
 ##################################################################################
 
 class Change: # дочернее окно изменения задачи
-	def __init__(self, perent, id_, date_end, problem):
+	def __init__(self, perent, id_, date_end):
 		if id_ != 0:
 			self.db = db
 
@@ -324,7 +332,6 @@ class Change: # дочернее окно изменения задачи
 			self.focuse()
 		else:
 			mb.showinfo("Изменение задачи", "Задача не выбрана")
-
 
 	def records(self, problem, id_for_change, date_end):
 		if problem != '':
@@ -377,7 +384,7 @@ class Info: # дочернее окно информации о задачах
 		Label(self.root7, text="задач всего", font="Arial 13").place(x=50, y=150)
 
 		btn_okay = tk.Button(self.root7, text="Окей", width=13, height=1, \
-		command=lambda: self.root7.destroy(), bg="LightGrey", bd=1)
+		command=self.root7.destroy, bg="LightGrey", bd=1)
 		btn_okay.place(x=75, y=190)
 		self.focuse()
 
@@ -391,6 +398,7 @@ class Info: # дочернее окно информации о задачах
 ####################################################################################
 
 class Reference:# дочернее окно помощи
+	# Отключить!!!
 	def __init__(self, perent):
 		self.root4 = tk.Toplevel(perent)
 		self.root4.title('Справка')
@@ -441,7 +449,6 @@ class Reference:# дочернее окно помощи
 		font="Arial 11").place(x=110, y=23)
 		img8 = Label(self.root4, image=self.clearall)
 		img8.place(x=10, y=290)
-
 		self.focuse()
 
 	def focuse(self):
@@ -493,6 +500,7 @@ class About:#Дочернее окно About
 ################################                            Delete Perdomed          ####
 #########################################################################################
 
+
 class DelPerf: #Дочернее окно DelPref
 	def __init__(self, perent):
 		self.root6 = tk.Toplevel(perent)
@@ -509,11 +517,11 @@ class DelPerf: #Дочернее окно DelPref
 
 		Label(self.root6, text='Вы уверены, что хотите удалить выполненные задачи ').place(x=5, rely=.1)
 		btn_yes = tk.Button(self.root6, text="Да", width=3, height=1, \
-		command=lambda: self.delete_if_yes(), bg="LightGrey", bd=1)
+		command=self.delete_if_yes, bg="LightGrey", bd=1)
 		btn_yes.place(relx=.3, rely=.5)
 
 		btn_no = tk.Button(self.root6, text="Нет", width=3, height=1, \
-		command=lambda: self.root6.destroy(), bg="LightGrey", bd=1)
+		command=self.root6.destroy, bg="LightGrey", bd=1)
 		btn_no.place(relx=.6, rely=.5)
 		self.focuse()
 
@@ -561,10 +569,10 @@ class Delete: # дочернее окно удаления задачи
 			Label(self.root8, text='Вы уверены, что хотите удалить эту задачу?', \
 			font="Arial 11").place(x=42, rely=.1)
 			btn_yes = tk.Button(self.root8, text="Да", width=3, height=1, \
-			command=lambda: self.delete_and_destroy(), bg="LightGrey", bd=1)
+			command=self.delete_and_destroy, bg="LightGrey", bd=1)
 			btn_yes.place(relx=.3, rely=.5)
 			btn_no = tk.Button(self.root8, text="Нет", width=3, height=1, \
-			command=lambda: self.root8.destroy(), bg="LightGrey", bd=1)
+			command=self.root8.destroy, bg="LightGrey", bd=1)
 			btn_no.place(relx=.6, rely=.5)
 			self.focuse()
 		else:
@@ -582,5 +590,5 @@ class Delete: # дочернее окно удаления задачи
 
 if __name__ == "__main__":
 	db = db_todo.DB('to_do_list.db')
-	main_win = Main_Win()
+	main_win = MainWin()
 	main_win.run()
