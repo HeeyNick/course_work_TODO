@@ -7,13 +7,11 @@ from random import *
 import db_todo
 
 
-
-
 ################################################################################################
-################################                                  Main                       ###
+# ###############################                                  Main                       ###
 ################################################################################################
 
-class Main_Win: #основное окно
+class MainWin:  # основное окно
 	def __init__(self):
 		self.root = tk.Tk()
 		self.root.title('ToDo List')
@@ -144,31 +142,38 @@ class Main_Win: #основное окно
 		self.status_ = self.tree.item(item)['values'][2]
 		self.problem_ = self.tree.item(item)['values'][1]
 
-
-
 	def make_add(self):
 		Add(self.root)
+
 	def change_problem(self):
 		Change(self.root, self.id_, self.date_end_2, self.problem_)
+
 	def delete_problem(self):
 		Delete(self.root)
+
 	def clear(self): # очистить все
 		answer = mb.askyesno("Очистить все", "Вы уверены, что хотите удалить все\
  задачи?\nДанная операция полностью удалит все задачи (выполненные и невыполненные)\
  без возможности восстановления")
 		if answer == True:
 			self.clr_all_prblm()
+
 	def delete_performed(self):
 		DelPerf(self.root)
+
 	def info(self):
 		Info(self.root)
+
 	def about(self):
 		About(self.root)
+
 	def reference(self):
 		Reference(self.root)
+
 	def expired_tasks(self):
 		self.db.expired_tasks_bd()
 		self.view_records()
+
 	def up_perf(self, id_, status_):
 		if id_ != 0:
 			self.db.update_performed(id_, status_)
@@ -176,6 +181,7 @@ class Main_Win: #основное окно
 			self.id_ = 0
 		else:
 			mb.showinfo("Изменение статуса", "Задача не выбрана")
+
 	def up_prior(self, id_, priority_):
 		if id_ != 0:
 			self.db.update_priority(id_, priority_)
@@ -183,17 +189,21 @@ class Main_Win: #основное окно
 			self.id_ = 0
 		else:
 			mb.showinfo("Изменение приоритета", "Задача не выбрана")
+
 	def del_prblm(self, id_):
 		self.db.delete_problem(id_)
 		self.view_records()
 		self.id_ = 0
+
 	def del_perf_bd(self):
 		self.db.delete_perfomed_in_bd()
 		self.view_records()
+
 	def clr_all_prblm(self):
 		self.db.clear_all_problems()
 		self.view_records()
 		mb.showinfo("Готово", "Список задач очищен")
+
 	def up_prblm(self, new_problem, id_):
 		self.db.update_record(new_problem, id_)
 		self.view_records()
@@ -276,7 +286,6 @@ class Add: #дочернее окно добавления задачи
 
 		self.focuse()
 
-
 	def focuse(self):
 		self.root2.grab_set()
 		self.root2.focus_set()
@@ -343,7 +352,6 @@ class Change: # дочернее окно изменения задачи
 			self.focuse()
 		else:
 			mb.showinfo("Изменение задачи", "Задача не выбрана")
-
 
 	def records(self, problem, id_for_change, date_end):
 		if problem != '':
@@ -460,7 +468,6 @@ class Reference:# дочернее окно помощи
 		font="Arial 11").place(x=110, y=23)
 		img8 = Label(self.root4, image=self.clearall)
 		img8.place(x=10, y=290)
-
 		self.focuse()
 
 	def focuse(self):
@@ -511,6 +518,7 @@ class About:#Дочернее окно About
 #########################################################################################
 ################################                            Delete Perdomed          ####
 #########################################################################################
+
 
 class DelPerf: #Дочернее окно DelPref
 	def __init__(self, perent):
@@ -601,5 +609,5 @@ class Delete: # дочернее окно удаления задачи
 
 if __name__ == "__main__":
 	db = db_todo.DB('to_do_list.db')
-	main_win = Main_Win()
+	main_win = MainWin()
 	main_win.run()
