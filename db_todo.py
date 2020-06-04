@@ -50,7 +50,7 @@ class DB:
 		self.connection.commit()
 
 
-	def clear_all_problems(self):
+	def clear_all_problems(self, name_db):
 		self.cur.execute('''DROP TABLE TODO''')
 		DB(name_db)
 
