@@ -113,6 +113,17 @@ class DB:
 				self.cur.execute('''UPDATE TODO SET Статус = ? WHERE № = ?''', (str_exp_tasks, rows[1]))
 				self.connection.commit()
 
+	def select_priority(self):
+		self.cur.execute('''SELECT * FROM TODO ORDER BY Приоритет''')
+
+	def select_problem_end(self):
+		self.cur.execute('''SELECT Задача,Дата_окончания FROM TODO''')
+
+	def select_status(self):
+		self.cur.execute('''SELECT Статус FROM TODO''')
+
+	def fetchall(self):
+		return self.cur.fetchall()
 
 class TaskStatus:
 	perf = "Выполнено"

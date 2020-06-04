@@ -109,7 +109,7 @@ class MainWin:  # основное окно
 
 	def records(self, problem, date_today, date_end, problem_str):
 		if problem != '':
-			db.cur.execute('''SELECT Задача,Дата_окончания FROM TODO''')
+			self.sclt_prblm_end()
 			rows = db.cur.fetchall()
 			i = 0
 			for row in rows:
@@ -126,9 +126,9 @@ class MainWin:  # основное окно
 		problem_str.delete(0, 'end')
 
 	def view_records(self):
-		self.db.cur.execute('''SELECT * FROM TODO ORDER BY Приоритет''')
+		self.slct_prior()
 		[self.tree.delete(i) for i in self.tree.get_children()] # delete from pylint && change
-		[self.tree.insert('', 'end', values=row) for row in self.db.cur.fetchall()]
+		[self.tree.insert('', 'end', values=row) for row in self.ftch()]
 
 	def entry_error(self, problem_str):
 		problem_str.config(bg='pink')
@@ -206,6 +206,18 @@ class MainWin:  # основное окно
 	def up_prblm(self, new_problem, id_):
 		self.db.update_record(new_problem, id_)
 		self.view_records()
+
+	def slct_prior(self):
+		self.db.select_priority()
+
+	def sclt_prblm_end(self):
+		self.db.select_problem_end()
+
+	def sclt_status(self):
+		self.db.select_status()
+
+	def ftch(self):
+		return self.db.fetchall()
 
 
 
@@ -335,8 +347,8 @@ class Change: # дочернее окно изменения задачи
 
 	def records(self, problem, id_for_change, date_end):
 		if problem != '':
-			db.cur.execute('''SELECT Задача,Дата_окончания FROM TODO''')
-			rows = db.cur.fetchall()
+			main_win.sclt_prblm_end()
+			rows = main_win.ftch()
 			i = 0
 			for row in rows:
 				if (row[0] == problem) and (row[1] == str(date_end)):
@@ -528,8 +540,8 @@ class DelPerf: #Дочернее окно DelPref
 	def delete_if_yes(self):
 		"""Функция удаления если ДА."""
 		i = 0
-		db.cur.execute('''SELECT Статус FROM TODO''')
-		rows = db.cur.fetchall()
+		main_win.sclt_status()
+		rows = main_win.ftch()
 		for row in rows:
 			if row[0] == self.db.status.perf:
 				i += 1
