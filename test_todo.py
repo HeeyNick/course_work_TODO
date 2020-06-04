@@ -229,7 +229,8 @@ class TestClearAll(unittest.TestCase):
 		self.func_db.status.perf, date_end_insert)
 		self.func_db.insert_db(self.func_db.priority.major, problem_insert_six, \
 		self.func_db.status.unperf, date_end_insert)
-		self.func_db.db.clear_all_problems()
+		name_db = "test_db.db"
+		self.func_db.db.clear_all_problems(name_db)
 		self.func_db.db.cur.execute('''SELECT * FROM TODO''')
 		rows_id = self.func_db.db.cur.fetchall()
 		self.assertEqual(rows_id, [])

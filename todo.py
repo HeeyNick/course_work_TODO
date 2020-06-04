@@ -199,7 +199,7 @@ class MainWin:  # основное окно
 		self.view_records()
 
 	def clr_all_prblm(self):
-		self.db.clear_all_problems()
+		self.db.clear_all_problems("to_do_list.db")
 		self.view_records()
 		mb.showinfo("Готово", "Список задач очищен")
 
