@@ -52,17 +52,7 @@ class DB:
 
 	def clear_all_problems(self):
 		self.cur.execute('''DROP TABLE TODO''')
-		self.cur.execute("""
-			CREATE TABLE IF NOT EXISTS TODO (
-  			Приоритет TEXT, 
-  			Задача TEXT NOT NULL,
- 			Статус TEXT,		
- 			Дата_добавления DATE,
- 			Дата_окончания DATE,
- 			№ INTEGER PRIMARY KEY AUTOINCREMENT
-			)
-			""")
-		self.connection.commit()
+		DB(name_db)
 
 	def delete_problem(self, id_):
 		number = id_
