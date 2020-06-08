@@ -275,7 +275,27 @@ class TestInfo(unittest.TestCase):
 	def tearDownClass(cls):
 		cls.func_db.delete_db()
 
+class TestChangeProblem(unittest.TestCase):
+	@classmethod
+	def setUpClass(cls):
+		cls.func_db = FuncDB()
+		cls.func_db.create_db()
 
+	def test_change_problem(self):
+		problem_insert_ten = 'Десять'
+		date_end_insert = datetime.date(2020, 12, 4)
+		self.func_db.insert_db(self.func_db.priority.normal, problem_insert_ten, \
+		self.func_db.status.unperf, date_end_insert)
+		change_problem_insert = 'Одиннадцать'
+		id_ = 1 
+		today_test_str = str(datetime.date.today())
+		self.func_db.db.update_record(change_problem_insert, id_)
+		rows = self.func_db.fetch_task_by_id(id_)
+		self.assertEqual(rows, [(self.func_db.priority.normal, change_problem_insert, self.func_db.status.unperf, today_test_str, str(date_end_insert), id_)])
+
+	@classmethod
+	def tearDownClass(cls):
+		cls.func_db.delete_db()
 
 if __name__ == "__main__":
 	unittest.main()
