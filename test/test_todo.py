@@ -1,7 +1,7 @@
 import unittest
 import datetime
 import sys
-sys.path.insert(1, '../src')
+sys.path.append('../src')
 import db_todo
 
 class FuncDB:
