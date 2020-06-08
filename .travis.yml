@@ -1,0 +1,10 @@
+language: python
+python:
+  - "3.8.2"
+before_script:
+  pip install pylint
+script:
+  - python test_todo.py
+  - pylint todo.py
+  - pylint db_todo.py
+  - pylint test_todo.py
