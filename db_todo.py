@@ -70,7 +70,7 @@ class DB:
 	def important_count(self):
 		priority_yes = tuple([self.priority.major])
 		self.cur.execute('''SELECT * FROM TODO WHERE Приоритет = ?''', (priority_yes)).rowcount
-		rows = self.cur.fetchall()
+		rows = self.fetchall()
 		count_imp = len(rows)
 		self.connection.commit()
 		return count_imp
@@ -78,7 +78,7 @@ class DB:
 	def pass_count(self):
 		perf = tuple([self.status.perf])
 		self.cur.execute('''SELECT * FROM TODO WHERE Статус = ?''', (perf)).rowcount
-		rows = self.cur.fetchall()
+		rows = self.fetchall()
 		count_perf = len(rows)
 		self.connection.commit()
 		return count_perf
@@ -86,14 +86,14 @@ class DB:
 	def fail_count(self):
 		unperf = tuple([self.status.unperf])
 		self.cur.execute('''SELECT * FROM TODO WHERE Статус = ?''', (unperf)).rowcount
-		rows = self.cur.fetchall()
-		count_fail = len(rows)
+		rows = self.fetchall()
+		count_fail = len(rows) + self.select_all_exp()
 		self.connection.commit()
 		return count_fail
 
 	def all_count(self):
 		self.cur.execute('''SELECT * FROM TODO''').rowcount
-		rows = self.cur.fetchall()
+		rows = self.fetchall()
 		count_all = len(rows)
 		self.connection.commit()
 		return count_all
@@ -102,7 +102,7 @@ class DB:
 		str_exp_tasks = 'Просрочено на'
 		datetime_today = datetime.date.today()
 		self.cur.execute('''SELECT Дата_окончания, № FROM TODO''')
-		rows_id = self.cur.fetchall()
+		rows_id = self.fetchall()
 		for rows in rows_id:
 			date_end_3 = rows[0]
 			date_end_3 = date_end_3.split('-')
@@ -124,6 +124,16 @@ class DB:
 
 	def fetchall(self):
 		return self.cur.fetchall()
+
+	def select_all_exp(self):
+		self.cur.execute('''SELECT Статус FROM TODO''')
+		rows = self.fetchall()
+		exp = 'Просрочено'
+		i = 0
+		for row in rows:
+			if exp in str(row):
+				i += 1
+		return i
 
 class TaskStatus:
 	perf = "Выполнено"
