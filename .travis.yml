@@ -2,8 +2,8 @@ language: python
 python:
   - "3.8.2"
 before_script:
-  pip install pylint
   pip install sys
+  pip install pylint
 script:
   - python test/test_todo.py
   - pylint src/todo.py
