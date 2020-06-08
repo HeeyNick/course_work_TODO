@@ -1,10 +1,12 @@
 import unittest
 import datetime
+import sys
+sys.path.insert(1, '../src')
 import db_todo
 
 class FuncDB:
 	def create_db(self):
-		self.db = db_todo.DB('test_db.db')
+		self.db = db_todo.DB('../database/test_db.db')
 		self.status = db_todo.TaskStatus()
 		self.priority = db_todo.TaskPriority()
 
@@ -229,7 +231,7 @@ class TestClearAll(unittest.TestCase):
 		self.func_db.status.perf, date_end_insert)
 		self.func_db.insert_db(self.func_db.priority.major, problem_insert_six, \
 		self.func_db.status.unperf, date_end_insert)
-		name_db = "test_db.db"
+		name_db = "../database/test_db.db"
 		self.func_db.db.clear_all_problems(name_db)
 		self.func_db.db.cur.execute('''SELECT * FROM TODO''')
 		rows_id = self.func_db.db.cur.fetchall()

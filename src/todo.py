@@ -69,12 +69,12 @@ class MainWin:  # основное окно
 
 	def make_button(self, perent):
 
-		self.add = tk.PhotoImage(file='mainlogos/3.png')
-		self.change = tk.PhotoImage(file='mainlogos/6.png')
-		self.important = tk.PhotoImage(file='mainlogos/4.png')
-		self.delete_pr = tk.PhotoImage(file='mainlogos/2.png')
-		self.performed = tk.PhotoImage(file='mainlogos/1.png')
-		self.delperf = tk.PhotoImage(file='mainlogos/5.png')
+		self.add = tk.PhotoImage(file='../mainlogos/3.png')
+		self.change = tk.PhotoImage(file='../mainlogos/6.png')
+		self.important = tk.PhotoImage(file='../mainlogos/4.png')
+		self.delete_pr = tk.PhotoImage(file='../mainlogos/2.png')
+		self.performed = tk.PhotoImage(file='../mainlogos/1.png')
+		self.delperf = tk.PhotoImage(file='../mainlogos/5.png')
 
 		btn_open_add = tk.Button(perent, text="Add Task", width=100, height=100, image=self.add,\
 		bd=3, command=self.make_add)
@@ -206,6 +206,7 @@ class MainWin:  # основное окно
 	def up_prblm(self, new_problem, id_):
 		self.db.update_record(new_problem, id_)
 		self.view_records()
+		self.id_ = 0
 
 	def slct_prior(self):
 		self.db.select_priority()
@@ -420,14 +421,14 @@ class Reference:# дочернее окно помощи
 		y = (self.root4.winfo_screenheight() - self.root4.winfo_reqheight()) / 1.9
 		self.root4.wm_geometry("+%d+%d" % (x, y))
 
-		self.add = PhotoImage(file='referencelogos/3.png')
-		self.change = PhotoImage(file='referencelogos/6.png')
-		self.important = PhotoImage(file='referencelogos/4.png')
-		self.delete = PhotoImage(file='referencelogos/2.png')
-		self.performed = PhotoImage(file='referencelogos/1.png')
-		self.delperf = PhotoImage(file='referencelogos/5.png')
-		self.information = PhotoImage(file='referencelogos/333.png')
-		self.clearall = PhotoImage(file='referencelogos/444.png')
+		self.add = PhotoImage(file='../referencelogos/3.png')
+		self.change = PhotoImage(file='../referencelogos/6.png')
+		self.important = PhotoImage(file='../referencelogos/4.png')
+		self.delete = PhotoImage(file='../referencelogos/2.png')
+		self.performed = PhotoImage(file='../referencelogos/1.png')
+		self.delperf = PhotoImage(file='../referencelogos/5.png')
+		self.information = PhotoImage(file='../referencelogos/333.png')
+		self.clearall = PhotoImage(file='../referencelogos/444.png')
 
 		Label(self.root4, text='- нажмите, чтобы добавить задачу', font="Arial 11").place(x=40, y=13)
 		img1 = Label(self.root4, image=self.add)
@@ -478,8 +479,8 @@ class About:#Дочернее окно About
 		self.root5.title('О приложении')
 		self.root5.geometry("930x900")
 		self.root5.resizable(False, False)
-		self.toolbar1 = PhotoImage(file='referencelogos/421.png')
-		self.table1 = PhotoImage(file='referencelogos/422.png')
+		self.toolbar1 = PhotoImage(file='..referencelogos/421.png')
+		self.table1 = PhotoImage(file='..referencelogos/422.png')
 
 		x = (self.root5.winfo_screenwidth() - self.root5.winfo_reqwidth()) / 3.5
 		y = (self.root5.winfo_screenheight() - self.root5.winfo_reqheight()) / 11
@@ -600,6 +601,6 @@ class Delete: # дочернее окно удаления задачи
 		self.root8.wait_window()
 
 if __name__ == "__main__":
-	db = db_todo.DB('to_do_list.db')
+	db = db_todo.DB('../database/to_do_list.db')
 	main_win = MainWin()
 	main_win.run()
