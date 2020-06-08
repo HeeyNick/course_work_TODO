@@ -3,6 +3,7 @@ python:
   - "3.8.2"
 before_script:
   pip install pylint
+  pip install sys
 script:
   - python test/test_todo.py
   - pylint src/todo.py
