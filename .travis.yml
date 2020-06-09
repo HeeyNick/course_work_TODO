@@ -5,7 +5,7 @@ before_script:
   - pip install syspath
   - pip install pylint
 script:
-  - python test/test_todo.py
+  - python test_todo.py
   - pylint src/todo.py
   - pylint src/db_todo.py
-  - pylint test/test_todo.py
+  - pylint test_todo.py
