@@ -110,7 +110,7 @@ class MainWin:  # основное окно
 	def records(self, problem, date_today, date_end, problem_str):
 		if problem != '':
 			self.sclt_prblm_end()
-			rows = db.cur.fetchall()
+			rows = self.ftch()
 			i = 0
 			for row in rows:
 				if (row[0] == problem) and (row[1] == str(date_end)):
@@ -199,7 +199,7 @@ class MainWin:  # основное окно
 		self.view_records()
 
 	def clr_all_prblm(self):
-		self.db.clear_all_problems("to_do_list.db")
+		self.db.clear_all_problems('../database/to_do_list.db')
 		self.view_records()
 		mb.showinfo("Готово", "Список задач очищен")
 
