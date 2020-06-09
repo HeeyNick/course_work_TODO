@@ -34,8 +34,6 @@ class MainWin:  # основное окно
 		self.tree = ttk.Treeview(self.root, \
 		columns=('important', 'task', 'state', 'date_start', 'date_end', 'ID'), \
 		height=100, show='headings', selectmode="browse")
-		self.tree.insert('', 'end', text='your text', tags=('oddrow',))
-		self.tree.tag_configure('oddrow', background='orange')
 		self.tree.pack(side=tk.LEFT)
 		self.tree.column('important', width=70, anchor=tk.CENTER)
 		self.tree.column('task', width=510, anchor=tk.CENTER)
@@ -127,7 +125,7 @@ class MainWin:  # основное окно
 
 	def view_records(self):
 		self.slct_prior()
-		[self.tree.delete(i) for i in self.tree.get_children()] # delete from pylint && change
+		[self.tree.delete(i) for i in self.tree.get_children()]
 		[self.tree.insert('', 'end', values=row) for row in self.ftch()]
 
 	def entry_error(self, problem_str):
