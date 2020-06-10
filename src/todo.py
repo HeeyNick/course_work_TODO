@@ -477,8 +477,8 @@ class About:#Дочернее окно About
 		self.root5.title('О приложении')
 		self.root5.geometry("930x900")
 		self.root5.resizable(False, False)
-		self.toolbar1 = PhotoImage(file='..referencelogos/421.png')
-		self.table1 = PhotoImage(file='..referencelogos/422.png')
+		self.toolbar1 = PhotoImage(file='../referencelogos/421.png')
+		self.table1 = PhotoImage(file='../referencelogos/422.png')
 
 		x = (self.root5.winfo_screenwidth() - self.root5.winfo_reqwidth()) / 3.5
 		y = (self.root5.winfo_screenheight() - self.root5.winfo_reqheight()) / 11
